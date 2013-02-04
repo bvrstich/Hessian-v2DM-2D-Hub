@@ -49,11 +49,13 @@ class PHM : public BlockMatrix {
 
       void G(const TPM &);
 
+      void convert(double **) const;
+
       static int gs2ph(int,int,int);
 
       static int gph2s(int,int,int);
 
-      static int gblock_char(int,int,int);
+      static int gblock_char(int,int);
 
       static void init();
 

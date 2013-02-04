@@ -181,3 +181,193 @@ int TPTPM::gtpmm2t(int i,int option){
    return tpmm2t[i][option];
 
 }
+
+/**
+ * construct the antisymmetrized direct product of two PHM matrices
+ */
+void TPTPM::dp(double **pharray){
+
+   int L2 = Tools::gL2();
+
+   int B,B_;
+
+   int sign,sign_;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   int d_;
+   int t_,h_;
+
+   int I_i,J_i,K_i,L_i;
+
+   int S,S_;
+
+   for(int i = 0;i < gn();++i){
+
+      B = tpmm2t[i][0];
+
+      S = TPM::gblock_char(B,0);
+
+      sign = 1 - 2*S;
+
+      I_i = tpmm2t[i][1];
+      J_i = tpmm2t[i][2];
+
+      a = TPM::gt2s(B,I_i,0);
+      b = TPM::gt2s(B,I_i,1);
+      c = TPM::gt2s(B,J_i,0);
+      d = TPM::gt2s(B,J_i,1);
+
+      d_ = Hamiltonian::bar(d); 
+
+      for(int j = i;j < gn();++j){
+
+         B_ = tpmm2t[j][0];
+
+         S_ = TPM::gblock_char(B_,0);
+
+         sign_ = 1 - 2*S_;
+
+         K_i = tpmm2t[j][1];
+         L_i = tpmm2t[j][2];
+
+         e = TPM::gt2s(B_,K_i,0);
+         z = TPM::gt2s(B_,K_i,1);
+         t = TPM::gt2s(B_,L_i,0);
+         h = TPM::gt2s(B_,L_i,1);
+
+         t_ = Hamiltonian::bar(t); 
+         h_ = Hamiltonian::bar(h); 
+
+         (*this)(i,j) = 0.0;
+
+         int P = Hamiltonian::add(a,d_);
+         int P_ = Hamiltonian::bar(P);
+
+         //(a,d,c,b)_(e,h,t,z) and (b,c,d,a)_(z,t,h,e)
+         if(P == Hamiltonian::add(e,h_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][a + e*L2] * pharray[P + Z*L2][c + t*L2]
+
+                     + pharray[P + Z*L2][a + t*L2]* pharray[P + Z*L2][c + e*L2] + pharray[P_ + Z*L2][b + z*L2] * pharray[P_ + Z*L2][d + h*L2]
+
+                     + pharray[P_ + Z*L2][b + h*L2] * pharray[P_ + Z*L2][d + z*L2] ); 
+
+            }
+
+         }
+
+         //(a,d,c,b)_(z,h,t,e) and (b,c,d,a)_(e,t,h,z)
+         if(P == Hamiltonian::add(z,h_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign_ * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][a + z*L2] * pharray[P + Z*L2][c + t*L2]
+
+                     + pharray[P + Z*L2][a + t*L2]* pharray[P + Z*L2][c + z*L2] + pharray[P_ + Z*L2][b + e*L2] * pharray[P_ + Z*L2][d + h*L2]
+
+                     + pharray[P_ + Z*L2][b + h*L2] * pharray[P_ + Z*L2][d + e*L2] ); 
+
+            }
+
+         }
+
+         //(a,d,c,b)_(e,t,h,z) and (b,c,d,a)_(z,h,t,e)
+         if(P == Hamiltonian::add(e,t_) ){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign_ * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][a + e*L2] * pharray[P + Z*L2][c + h*L2]
+
+                     + pharray[P + Z*L2][a + h*L2]* pharray[P + Z*L2][c + e*L2]  + pharray[P_ + Z*L2][b + z*L2] * pharray[P_ + Z*L2][d + t*L2]
+
+                     + pharray[P_ + Z*L2][b + t*L2] * pharray[P_ + Z*L2][d + z*L2] ); 
+
+            }
+
+         }
+
+         //(a,d,c,b)_(z,t,h,e) and (b,c,d,a)_(e,h,t,z)
+         if(P == Hamiltonian::add(z,t_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][a + z*L2] * pharray[P + Z*L2][c + h*L2]
+
+                     + pharray[P + Z*L2][a + h*L2]* pharray[P + Z*L2][c + z*L2] + pharray[P_ + Z*L2][b + e*L2] * pharray[P_ + Z*L2][d + t*L2]
+
+                     + pharray[P_ + Z*L2][b + t*L2] * pharray[P_ + Z*L2][d + e*L2] ); 
+
+            }
+
+         }
+
+         P = Hamiltonian::add(b,d_);
+         P_ = Hamiltonian::bar(P);
+
+         //(b,d,c,a)_(e,h,t,z) and (a,c,d,b)_(z,t,h,e)
+         if(P == Hamiltonian::add(e,h_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][b + e*L2] * pharray[P + Z*L2][c + t*L2]
+
+                     + pharray[P + Z*L2][b + t*L2]* pharray[P + Z*L2][c + e*L2] + pharray[P_ + Z*L2][a + z*L2] * pharray[P_ + Z*L2][d + h*L2]
+
+                     + pharray[P_ + Z*L2][a + h*L2] * pharray[P_ + Z*L2][d + z*L2] ); 
+
+            }
+
+         }
+
+         //(b,d,c,a)_(z,h,t,e) and (a,c,d,b)_(e,t,h,z)
+         if(P == Hamiltonian::add(z,h_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign * sign_ * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][b + z*L2] * pharray[P + Z*L2][c + t*L2]
+
+                     + pharray[P + Z*L2][b + t*L2]* pharray[P + Z*L2][c + z*L2] + pharray[P_ + Z*L2][a + e*L2] * pharray[P_ + Z*L2][d + h*L2]
+
+                     + pharray[P_ + Z*L2][a + h*L2] * pharray[P_ + Z*L2][d + e*L2] ); 
+
+            }
+
+         }
+
+         //(b,d,c,a)_(e,t,h,z) and (a,c,d,b)_(z,h,t,e)
+         if(P == Hamiltonian::add(e,t_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign * sign_ * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][b + e*L2] * pharray[P + Z*L2][c + h*L2]
+
+                     + pharray[P + Z*L2][b + h*L2]* pharray[P + Z*L2][c + e*L2] + pharray[P_ + Z*L2][a + z*L2] * pharray[P_ + Z*L2][d + t*L2]
+
+                     + pharray[P_ + Z*L2][a + t*L2] * pharray[P_ + Z*L2][d + z*L2] ); 
+
+            }
+
+         }
+
+         //(b,d,c,a)_(z,t,h,e) and (a,c,d,b)_(e,h,t,z)
+         if(P == Hamiltonian::add(z,t_)){
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(i,j) += sign * (2*Z + 1.0) * Tools::g6j(0,0,Z,S) * Tools::g6j(0,0,Z,S_) * ( pharray[P + Z*L2][b + z*L2] * pharray[P + Z*L2][c + h*L2]
+
+                     + pharray[P + Z*L2][b + h*L2]* pharray[P + Z*L2][c + z*L2] + pharray[P_ + Z*L2][a + e*L2] * pharray[P_ + Z*L2][d + t*L2]
+
+                     + pharray[P_ + Z*L2][a + t*L2] * pharray[P_ + Z*L2][d + e*L2] ); 
+
+            }
+
+         }
+
+      }
+   }
+}

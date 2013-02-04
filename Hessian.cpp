@@ -236,3 +236,91 @@ void Hessian::Q(const TPM &Q){
    }
 
 }
+
+/**
+ * construct the G part of the Hessian
+ */
+void Hessian::G(const PHM &G){
+
+   int L2 = Tools::gL2();
+
+   double **pharray = new double * [2*L2];
+
+   for(int B = 0;B < 2*L2;++B)
+      pharray[B] = new double [L2*L2];
+
+   G.convert(pharray);
+
+   TPTPM dp;
+   dp.dp(pharray);
+
+   TPSPM dpt;
+   dpt.dpt(1.0/(Tools::gN() - 1.0),pharray);
+
+   SPSPM dpt2;
+   dpt2.dpt2(1.0/((Tools::gN() - 1.0)*(Tools::gN() - 1.0)),pharray);
+
+   int B,I,J,B_,K,L;
+
+   int S,S_;
+
+   //first store everything in ward, then multiply with norms and add to (*this)!
+   double ward;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   for(int i = 0;i < TPTPM::gn();++i){
+
+      B = TPTPM::gtpmm2t(i,0);
+
+      S = TPM::gblock_char(B,0);
+
+      I = TPTPM::gtpmm2t(i,1);
+      J = TPTPM::gtpmm2t(i,2);
+
+      a = TPM::gt2s(B,I,0);
+      b = TPM::gt2s(B,I,1);
+      c = TPM::gt2s(B,J,0);
+      d = TPM::gt2s(B,J,1);
+
+      for(int j = i;j < TPTPM::gn();++j){
+
+         B_ = TPTPM::gtpmm2t(j,0);
+
+         S_ = TPM::gblock_char(B_,0);
+
+         K = TPTPM::gtpmm2t(j,1);
+         L = TPTPM::gtpmm2t(j,2);
+
+         e = TPM::gt2s(B_,K,0);
+         z = TPM::gt2s(B_,K,1);
+         t = TPM::gt2s(B_,L,0);
+         h = TPM::gt2s(B_,L,1);
+
+         ward = 2.0 * TPM::gnorm(a,b) * TPM::gnorm(c,d) * TPM::gnorm(e,z) * TPM::gnorm(t,h) * dp(i,j);
+
+         if(I == J){
+
+            if(K == L)
+               ward += dpt2(a,e) + dpt2(a,z) + dpt2(b,e) + dpt2(b,z);
+
+            ward -= TPM::gnorm(e,z) * TPM::gnorm(t,h) * ( dpt(j,a) +  dpt(j,b) );
+
+         }
+
+         if(K == L)
+            ward -= TPM::gnorm(a,b) * TPM::gnorm(c,d) * ( dpt(i,e) +  dpt(i,z) );
+
+         //the norms
+         (*this)(i,j) += ward * Gradient::gnorm(i) * Gradient::gnorm(j) * (2.0*S + 1.0) * (2.0*S_ + 1.0);
+
+      }
+   }
+
+   for(int B = 0;B < 2*L2;++B)
+      delete [] pharray[B];
+
+   delete [] pharray;
+
+}

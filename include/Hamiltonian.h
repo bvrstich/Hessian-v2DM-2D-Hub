@@ -38,6 +38,8 @@ class Hamiltonian{
 
       static int bar(int);
 
+      static int add(int,int);
+
    private:
       
       //!static list that translates the two indices of the 2D hubbard model to one sp index.

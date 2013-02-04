@@ -10,6 +10,8 @@ using std::vector;
 
 #include "Matrix.h"
 
+class PHM;
+
 /**
  * @author Brecht Verstichel
  * @date 23-11-2012\n\n
@@ -44,6 +46,8 @@ class TPTPM : public Matrix {
 
       //access to the numbers in tp mode
       double operator()(int B,int I,int J,int B_,int K,int L) const;
+
+      void dp(double **);
 
       static int gn();
 

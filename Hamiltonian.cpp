@@ -125,3 +125,12 @@ int Hamiltonian::adjoint(int a,int k,int e){
   return xy_a[(a_xy[a][0] + a_xy[k][0] - a_xy[e][0] + Tools::gL())%Tools::gL()][(a_xy[a][1] + a_xy[k][1] - a_xy[e][1] + Tools::gL())%Tools::gL()];
 
 }
+
+/**
+ * add two sp indices together to form a new sp index (i.e. add the separate x and y momenta and recombine)
+ */
+int Hamiltonian::add(int a,int b){
+
+   return xy_a[(a_xy[a][0] + a_xy[b][0])%Tools::gL()][(a_xy[a][1] + a_xy[b][1])%Tools::gL()];
+
+}

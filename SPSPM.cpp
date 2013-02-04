@@ -79,3 +79,46 @@ void SPSPM::dpt2(double scale,const TPM &Q){
    this->symmetrize();
 
 }
+
+/**
+ * construct the doubly-traced direct product of two PHM matrices
+ */
+void SPSPM::dpt2(double scale,double **pharray){
+
+   int L2 = Tools::gL2();
+
+   for(int a = 0;a < Tools::gL2();++a)
+      for(int e = a;e < Tools::gL2();++e){
+
+         (*this)(a,e) = 0.0;
+
+         //first S = 0
+         for(int k = 0;k < Tools::gL2();++k){
+
+            int K = Hamiltonian::add(a,k);
+
+            (*this)(a,e) += pharray[K][a + e*L2] * pharray[K][a + e*L2];
+
+         }
+
+         double ward = 0.0;
+
+         //then S = 1
+         for(int k = 0;k < Tools::gL2();++k){
+
+            int K = Hamiltonian::add(a,k);
+
+            ward += pharray[K + L2][a + e*L2] * pharray[K + L2][a + e*L2];
+
+         }
+
+         (*this)(a,e) += 3.0 * ward;
+
+         (*this)(a,e) *= scale;
+
+
+      }
+
+   this->symmetrize();
+
+}

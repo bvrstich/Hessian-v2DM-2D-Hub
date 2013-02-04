@@ -250,4 +250,53 @@ void PHM::G(const TPM &tpm){
 
 }
 
+/**
+ * convert a PHM matrix to a double array for faster access to the number
+ */
+void PHM::convert(double **array) const {
+
+   int K,S;
+
+   int L2 = Tools::gL2();
+
+   for(int B = 0;B < 2*L2;++B){
+
+      S = block_char[B][0];
+      K = block_char[B][1];
+
+      for(int a = 0;a < L2;++a)
+         for(int c = 0;c < L2;++c)
+            array[B][a + c*L2] = (*this)(S,a,Hamiltonian::adjoint(K,a),c,Hamiltonian::adjoint(K,c));
+
+   }
+
+}
+
+/**
+ * access to the lists from outside of the class
+ */
+int PHM::gph2s(int B,int i,int option){
+
+   return ph2s[B][i][option];
+
+}
+
+/**
+ * access to the lists from outside of the class
+ */
+int PHM::gs2ph(int B,int a,int b){
+
+   return ph2s[B][a][b];
+
+}
+
+/**
+ * access to the lists from outside of the class
+ */
+int PHM::gblock_char(int B,int option){
+
+   return block_char[B][option];
+
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/

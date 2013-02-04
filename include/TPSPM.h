@@ -36,6 +36,8 @@ class TPSPM : public RecMat {
 
       void dpt(double,const TPM &);
 
+      void dpt(double,double **);
+
    private:
 
 };
