@@ -11,14 +11,15 @@ using std::vector;
 
 #include "BlockMatrix.h"
 
-class SUP;
 class Gradient;
+class SUP;
 
 /**
  * @author Brecht Verstichel
  * @date 10-05-2010\n\n
- * This class TPM is a class written for two particle matrices with spinsymmetry and translational symemtry included, it inherits alle the function from its mother 
- * BlockMatrix, some special member functions and two lists that give the relationship between the sp and the tp basis.
+ * This class TPM is a class written for two particle matrices with spinsymmetry and translational symemtry included,
+ * It inherits alle the function from its mother BlockMatrix.
+ * Some special member functions and two lists that give the relationship between the sp and the tp basis.
  */
 class TPM : public BlockMatrix {
 
@@ -34,7 +35,7 @@ class TPM : public BlockMatrix {
    friend ostream &operator<<(ostream &output,const TPM &tpm_p);
 
    public:
-
+      
       //constructor
       TPM();
 
@@ -48,22 +49,24 @@ class TPM : public BlockMatrix {
 
       using BlockMatrix::operator();
 
-      //easy to access the numbers, in sp mode and blockindex
+      //easy to access the numbers, in sp mode and with tp spin and momentum quantumnumbers
       double operator()(int S,int a,int b,int c,int d) const;
 
       void hubbard(double U);
+
+      //Q afbeelding en zijn inverse
+      void Q(int option,const TPM &);
+
+      //Q like afbeelding Q(A,B,C,tpm_d)
+      void Q(int option,double,double,double,const TPM &);
 
       void unit();
 
       double S_2() const;
 
-      double line_search(double t,SUP &P,const TPM &ham);
-
-      double line_search(double t,const TPM &rdm,const TPM &ham);
+      double line_search(double,SUP &,const TPM &);
 
       void convert(const Gradient &);
-
-      static int gdim(int);
 
       static int gt2s(int,int,int);
 
@@ -71,28 +74,26 @@ class TPM : public BlockMatrix {
 
       static int gblock_char(int,int);
 
-      static double gnorm(int,int);
+      static int gdim(int);
 
       static void init();
 
       static void clear();
-      
+
    private:
 
-      //!static list of dimension [nr][dim[i]][2] that takes in a tp index i and a blockindex B, and returns two momentum indices: k_a = t2s[B][i][0] and k_b = t2s[B][i][1]
+      //!static list that takes in a tp index i and a blockindex B, and returns two sp indices: a = t2s[B][i][0] and b = t2s[B][i][1]
       static vector< vector<int> > *t2s;
 
-      //!static list of dimension [nr][L][L] that takes two sp momentum indices k_a,k_b and a blockindex B, and returns a tp index i: i = s2t[B][k_a][k_b]
+      //!static list that takes two sp indices a,b and a blockindex B, and returns a tp index i: i = s2t[B][a][b]
       static int ***s2t;
 
-      //!static list that takes a blockindex B and returns the tp spin S and the tp momentum K. S = block_char[B][0] , K = block_char[B][1]
+      //!static list that takes a blockindex B and returns the tp spin S and the tp momenta K_x and K_y
       static int **block_char;
 
-      //!list containing the norms arising because of the symmetry between the sp's in the S = 0 block
-      static double **norm;
+      //!static list that returns the blockindex when given the S, K_x and K_y.
+      static int ***char_block;
 
 };
 
 #endif
-
-/* vim: set ts=3 sw=3 expandtab :*/

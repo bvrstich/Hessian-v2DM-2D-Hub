@@ -27,6 +27,8 @@ class Tools{
 
       static int gL();
 
+      static int gL2();
+
       static int gM();
 
       static int gN();
@@ -36,8 +38,11 @@ class Tools{
       //!nr of particles
       static int N;
 
-      //!length of the chain
+      //!dimension of the lattice
       static int L;
+
+      //!number of sites
+      static int L2;
 
       //!number of sp-orbitals
       static int M;

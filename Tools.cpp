@@ -12,20 +12,22 @@ double *Tools::x6j;
 double *Tools::x9j;
 
 int Tools::L;
+int Tools::L2;
 int Tools::M;
 int Tools::N;
 
 /**
  * initialize and allocate the static variables
- * @param L_in length of the chain
+ * @param L_in dimension of the lattice
  * @param N_in nr of particles
  */
 void Tools::init(int L_in,int N_in){
 
    L = L_in;
+   L2 = L*L;
    N = N_in;
 
-   M = 2*L;
+   M = 2*L2;
 
    x6j = new double [16];
 
@@ -101,6 +103,15 @@ int Tools::gM(){
 int Tools::gL(){
 
    return L;
+
+}
+
+/**
+ * @return lenght of the chain
+ */
+int Tools::gL2(){
+
+   return L2;
 
 }
 

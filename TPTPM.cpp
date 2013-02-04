@@ -21,11 +21,9 @@ vector< vector<int> > TPTPM::tpmm2t;
  */
 void TPTPM::init(){
 
-   int L = Tools::gL();
+   t2tpmm = new int ** [Tools::gM()];
 
-   t2tpmm = new int ** [2*L];
-
-   for(int B = 0;B < 2*L;++B){
+   for(int B = 0;B < Tools::gM();++B){
 
       t2tpmm[B] = new int * [TPM::gdim(B)];
 
@@ -38,7 +36,7 @@ void TPTPM::init(){
 
    int tpmm = 0;
 
-   for(int B = 0;B < 2*L;++B){
+   for(int B = 0;B < Tools::gM();++B){
 
       for(int i = 0;i < TPM::gdim(B);++i)
          for(int j = i;j < TPM::gdim(B);++j){
@@ -65,7 +63,7 @@ void TPTPM::init(){
  */
 void TPTPM::clear(){
 
-   for(int B = 0;B < 2*Tools::gL();++B){
+   for(int B = 0;B < Tools::gM();++B){
 
       for(int i = 0;i < TPM::gdim(B);++i)
          delete [] t2tpmm[B][i];

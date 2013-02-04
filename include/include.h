@@ -44,6 +44,11 @@
 #include "BlockVector.h"
 #include "RecMat.h"
 #include "Vector.h"
+
+
+#include "Tools.h"
+#include "Hamiltonian.h"
+
 #include "TPM.h"
 
 #include "TPTPM.h"
@@ -52,7 +57,5 @@
 
 #include "SUP.h"
 #include "EIG.h"
-
-#include "Tools.h"
 
 #include "Newton.h"

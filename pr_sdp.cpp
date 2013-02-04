@@ -35,10 +35,12 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 6;//dim sp hilbert space
-   const int N = 6;//nr of particles
+   const int L = 4;//dimension of the lattice
+   const int N = 16;//nr of particles
 
    Tools::init(L,N);
+
+   Hamiltonian::init();
 
    TPM::init();
 
@@ -54,8 +56,6 @@ int main(void) {
 
    TPM rdm;
    rdm.unit();
-
-   TPM backup_rdm(rdm);
 
    double t = 1.0;
    double tolerance = 1.0e-5;
@@ -110,18 +110,6 @@ int main(void) {
       if(tolerance < 1.0e-12)
          tolerance = 1.0e-12;
 
-      //extrapolatie:
-      TPM extrapol(rdm);
-
-      extrapol -= backup_rdm;
-
-      //overzetten voor volgende stap
-      backup_rdm = rdm;
-
-      double b = extrapol.line_search(t,rdm,ham);
-
-      rdm.daxpy(b,extrapol);
-
       tot_iter += nr_newton_iter;
 
    }
@@ -140,6 +128,8 @@ int main(void) {
    TPTPM::clear();
 
    TPM::clear();
+
+   Hamiltonian::clear();
 
    Tools::clear();
 

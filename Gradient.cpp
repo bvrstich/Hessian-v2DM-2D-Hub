@@ -21,15 +21,13 @@ void Gradient::init(){
 
    n = TPTPM::gn();
 
-   int L = Tools::gL();
-
    norm = new double [n];
 
    int tpmm = 0;
 
    int S;
 
-   for(int B = 0;B < 2*L;++B){
+   for(int B = 0;B < Tools::gM();++B){
 
       S = TPM::gblock_char(B,0);
 
