@@ -51,6 +51,7 @@
 
 #include "TPM.h"
 #include "SPM.h"
+#include "PHM.h"
 
 #include "TPTPM.h"
 #include "Hessian.h"
