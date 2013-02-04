@@ -44,6 +44,7 @@ int main(void) {
 
    TPM::init();
    PHM::init();
+   DPM::init();
 
    TPTPM::init();
 
@@ -103,7 +104,7 @@ int main(void) {
 
       cout << nr_newton_iter << endl;
 
-      t /= 2.0;
+      t /= 1.3;
 
       //what is the tolerance for the newton method?
       tolerance = 1.0e-5*t;
@@ -128,6 +129,7 @@ int main(void) {
 
    TPTPM::clear();
 
+   DPM::clear();
    PHM::clear();
    TPM::clear();
 

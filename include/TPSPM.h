@@ -38,6 +38,8 @@ class TPSPM : public RecMat {
 
       void dpt(double,double **);
 
+      void dpt3(double,double **);
+
    private:
 
 };

@@ -34,7 +34,11 @@ class Hamiltonian{
 
       static int adjoint(int,int);
 
+      static int adjoint_sum(int,int,int);
+
       static int adjoint(int,int,int);
+
+      static int add(int,int,int);
 
       static int bar(int);
 

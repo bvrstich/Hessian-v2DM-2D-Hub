@@ -141,3 +141,93 @@ void TPSPM::dpt(double scale,double **pharray){
    }
 
 }
+
+/**
+ * construct a TPSPM object by triple-tracing the direct product of two DPM objects, here the DPM has already been transformed to a double **array
+ */
+void TPSPM::dpt3(double scale,double **dparray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L2*L4;
+   int L8 = L2*L6;
+
+   int B,I,J;
+
+   int S;
+
+   int a,b,c,d;
+
+   for(int i = 0;i < TPTPM::gn();++i){
+
+      B = TPTPM::gtpmm2t(i,0);
+
+      I = TPTPM::gtpmm2t(i,1);
+      J = TPTPM::gtpmm2t(i,2);
+
+      S = TPM::gblock_char(B,0);
+
+      a = TPM::gt2s(B,I,0);
+      b = TPM::gt2s(B,I,1);
+      c = TPM::gt2s(B,J,0);
+      d = TPM::gt2s(B,J,1);
+
+      for(int e = 0;e < L2;++e){
+
+         double ward = 0.0;
+
+         //first S = 1/2
+         for(int k = 0;k < L2;++k){//abk and cdk
+
+            int K = Hamiltonian::add(a,b,k);
+
+            //first S_ep = 0
+            for(int p = 0;p < e;++p)
+               ward += dparray[K][a + b*L2 + e*L4 + p*L6 + S*L8] * dparray[K][c + d*L2 + e*L4 + p*L6 + S*L8];
+
+            ward += 2.0 * dparray[K][a + b*L2 + e*L4 + e*L6 + S*L8] * dparray[K][c + d*L2 + e*L4 + e*L6 + S*L8];
+
+            for(int p = e + 1;p < L2;++p)
+               ward += dparray[K][a + b*L2 + e*L4 + p*L6 + S*L8] * dparray[K][c + d*L2 + e*L4 + p*L6 + S*L8];
+
+
+            //then S_ep = 1
+            for(int p = 0;p < e;++p)
+               ward += dparray[K][a + b*L2 + e*L4 + p*L6 + S*L8 + 2*L8] * dparray[K][c + d*L2 + e*L4 + p*L6 + S*L8 + 2*L8];
+
+            for(int p = e + 1;p < L2;++p)
+               ward += dparray[K][a + b*L2 + e*L4 + p*L6 + S*L8 + 2*L8] * dparray[K][c + d*L2 + e*L4 + p*L6 + S*L8 + 2*L8];
+
+         }
+
+         (*this)(i,e) = 2.0/(2*S + 1.0) * ward;
+
+         //then S = 3/2, only when
+         if(S == 1){
+
+            ward = 0.0;
+
+            for(int k = 0;k < L2;++k){//abk and cdk
+
+               int K = Hamiltonian::add(a,b,k);
+
+               //only S_ep = 1 term possible
+               for(int p = 0;p < e;++p)
+                  ward += dparray[K + L2][a + b*L2 + e*L4 + p*L6] * dparray[K + L2][c + d*L2 + e*L4 + p*L6];
+
+               for(int p = e + 1;p < L2;++p)
+                  ward += dparray[K + L2][a + b*L2 + e*L4 + p*L6] * dparray[K + L2][c + d*L2 + e*L4 + p*L6];
+
+            }
+
+            (*this)(i,e) += 4.0/3.0 * ward;
+
+         }
+
+         (*this)(i,e) *= scale;
+
+      }
+
+   }
+
+}

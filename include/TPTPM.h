@@ -49,6 +49,8 @@ class TPTPM : public Matrix {
 
       void dp(double **);
 
+      void dpt2(double **);
+
       static int gn();
 
       static int gtpmm2t(int,int);

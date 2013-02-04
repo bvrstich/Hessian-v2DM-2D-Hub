@@ -52,7 +52,7 @@ void SPSPM::dpt2(double scale,const TPM &Q){
          //first S = 0
          for(int k = 0;k < Tools::gL2();++k){
 
-            int l = Hamiltonian::adjoint(a,k,e);
+            int l = Hamiltonian::adjoint_sum(a,k,e);
 
             (*this)(a,e) += (Q(0,a,k,e,l) * Q(0,a,k,e,l) )/ ( TPM::gnorm(a,k) * TPM::gnorm(a,k) * TPM::gnorm(e,l) * TPM::gnorm(e,l) );
 
@@ -63,7 +63,7 @@ void SPSPM::dpt2(double scale,const TPM &Q){
          //then S = 1
          for(int k = 0;k < Tools::gL2();++k){
 
-            int l = Hamiltonian::adjoint(a,k,e);
+            int l = Hamiltonian::adjoint_sum(a,k,e);
 
             ward += Q(1,a,k,e,l) * Q(1,a,k,e,l);
 
@@ -116,6 +116,68 @@ void SPSPM::dpt2(double scale,double **pharray){
 
          (*this)(a,e) *= scale;
 
+
+      }
+
+   this->symmetrize();
+
+}
+
+/**
+ * construct a SPSPM by quadruple tracing the direct product of two DPM's, input the array
+ */
+void SPSPM::dpt4(double scale,double **dparray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L2*L4;
+   int L8 = L2*L6;
+
+   for(int a = 0;a < L2;++a)
+      for(int e = a;e < L2;++e){
+
+         (*this)(a,e) = 0.0;
+
+         double ward = 0.0;
+
+         //first S = 1/2
+         for(int l = 0;l < L2;++l)
+            for(int k = 0;k < L2;++k){
+
+               int K = Hamiltonian::add(a,l,k);
+
+               for(int S_al = 0;S_al < 2;++S_al)
+                  for(int S_en = 0;S_en < 2;++S_en)
+                     for(int n = 0;n < L2;++n){
+
+                        ward += dparray[K][a + l*L2 + e*L4 + n*L6 + S_al*L8 + 2*S_en*L8] * dparray[K][a + l*L2 + e*L4 + n*L6 + S_al*L8 + 2*S_en*L8]
+
+                           / ( TPM::gnorm(a,l) * TPM::gnorm(a,l) * TPM::gnorm(e,n) * TPM::gnorm(e,n) );
+
+
+                     }
+
+            }
+
+         (*this)(a,e) = 2.0 * ward;
+
+         ward = 0.0;
+
+         //then S = 3/2
+         for(int l = 0;l < L2;++l)
+            for(int k = 0;k < L2;++k){
+
+               int K = Hamiltonian::add(a,l,k);
+
+               for(int n = 0;n < L2;++n)
+                  ward += dparray[K + L2][a + l*L2 + e*L4 + n*L6] * dparray[K + L2][a + l*L2 + e*L4 + n*L6];
+
+            }
+
+         (*this)(a,e) += 4.0 * ward;
+
+         //scale
+         (*this)(a,e) *= 0.5 * scale;
 
       }
 

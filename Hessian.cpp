@@ -324,3 +324,118 @@ void Hessian::G(const PHM &G){
    delete [] pharray;
 
 }
+
+/**
+ * construct the T1 part of the Hessian matrix
+ */
+void Hessian::T(const DPM &T){
+
+   int N = Tools::gN();
+
+   DPM T2;
+   T2.squaresym(T);
+
+   TPM T2bar;
+   T2bar.bar(8.0/(N*(N - 1.0)),T2);
+
+   SPM T2barbar;
+   T2barbar.bar(1.0/(2*(N - 1.0)),T2bar);
+
+   double T2trace = 16 * T2.trace()/ (N*N*(N - 1.0)*(N - 1.0));
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L2*L4;
+   int L8 = L2*L6;
+
+   double **dparray = new double * [2*L2];
+
+   for(int B = 0;B < L2;++B)//S = 1/2
+      dparray[B] = new double [4*L8];
+
+   for(int B = L2;B < 2*L2;++B)//S = 3/2
+      dparray[B] = new double [L8];
+
+   T.convert(dparray);
+
+   TPTPM dpt2;
+   dpt2.dpt2(dparray);
+
+   TPSPM dpt3;
+   dpt3.dpt3(1.0/(N - 1.0),dparray);
+
+   SPSPM dpt4;
+   dpt4.dpt4(0.5/( (N - 1.0) * (N - 1.0) ),dparray);
+
+   int B,I_i,J_i,B_,K_i,L_i;
+
+   int S,S_;
+
+   //first store everything in ward, then multiply with norms and add to (*this)!
+   double ward;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   for(int i = 0;i < TPTPM::gn();++i){
+
+      B = TPTPM::gtpmm2t(i,0);
+
+      S = TPM::gblock_char(B,0);
+
+      I_i = TPTPM::gtpmm2t(i,1);
+      J_i = TPTPM::gtpmm2t(i,2);
+
+      a = TPM::gt2s(B,I_i,0);
+      b = TPM::gt2s(B,I_i,1);
+      c = TPM::gt2s(B,J_i,0);
+      d = TPM::gt2s(B,J_i,1);
+
+      for(int j = i;j < TPTPM::gn();++j){
+
+         B_ = TPTPM::gtpmm2t(j,0);
+
+         S_ = TPM::gblock_char(B_,0);
+
+         K_i = TPTPM::gtpmm2t(j,1);
+         L_i = TPTPM::gtpmm2t(j,2);
+
+         e = TPM::gt2s(B_,K_i,0);
+         z = TPM::gt2s(B_,K_i,1);
+         t = TPM::gt2s(B_,L_i,0);
+         h = TPM::gt2s(B_,L_i,1);
+
+         ward = 2.0 * dpt2(i,j);
+
+         if(I_i == J_i){
+
+            if(K_i == L_i){
+
+               ward += T2trace; 
+               
+               ward -= T2barbar[a] + T2barbar[b] + T2barbar[e] + T2barbar[z];
+
+               ward += dpt4(a,e) + dpt4(b,e) + dpt4(a,z) + dpt4(b,z);
+
+            }
+
+            ward += T2bar(S_,e,z,t,h) - dpt3(j,a) - dpt3(j,b);
+
+         }
+
+         if(K_i == L_i)
+            ward += T2bar(S,a,b,c,d) - dpt3(i,e) - dpt3(i,z);
+
+         //the norms
+         (*this)(i,j) += ward * Gradient::gnorm(i) * Gradient::gnorm(j) * (2.0*S + 1.0) * (2.0*S_ + 1.0);
+
+      }
+   }
+
+   //remove the array
+   for(int B = 0;B < 2*L2;++B)
+      delete [] dparray[B];
+
+   delete [] dparray;
+
+}
