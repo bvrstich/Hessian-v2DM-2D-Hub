@@ -123,12 +123,3 @@ int Tools::gN(){
    return N;
 
 }
-
-/**
- * transform momentum to parity conjugate
- */
-int Tools::par(int a){
-
-   return (L - a)%L;
-
-}

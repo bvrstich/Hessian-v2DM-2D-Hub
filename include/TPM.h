@@ -54,12 +54,6 @@ class TPM : public BlockMatrix {
 
       void hubbard(double U);
 
-      //Q afbeelding en zijn inverse
-      void Q(int option,const TPM &);
-
-      //Q like afbeelding Q(A,B,C,tpm_d)
-      void Q(int option,double,double,double,const TPM &);
-
       void unit();
 
       double S_2() const;
@@ -68,6 +62,10 @@ class TPM : public BlockMatrix {
 
       void convert(const Gradient &);
 
+      void Q(int,double,double,double,const TPM &);
+
+      void Q(int,const TPM &);
+
       static int gt2s(int,int,int);
 
       static int gs2t(int,int,int);
@@ -75,6 +73,8 @@ class TPM : public BlockMatrix {
       static int gblock_char(int,int);
 
       static int gdim(int);
+
+      static double gnorm(int,int);
 
       static void init();
 
@@ -88,11 +88,10 @@ class TPM : public BlockMatrix {
       //!static list that takes two sp indices a,b and a blockindex B, and returns a tp index i: i = s2t[B][a][b]
       static int ***s2t;
 
-      //!static list that takes a blockindex B and returns the tp spin S and the tp momenta K_x and K_y
+      //!static list that takes a blockindex B and returns the tp spin S and the tp momenta K_x
       static int **block_char;
 
-      //!static list that returns the blockindex when given the S, K_x and K_y.
-      static int ***char_block;
+      static double **norm;
 
 };
 

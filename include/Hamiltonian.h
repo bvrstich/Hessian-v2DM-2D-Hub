@@ -32,6 +32,10 @@ class Hamiltonian{
       //access the lists from outside the class
       static int ga_xy(int,int);
 
+      static int adjoint(int,int);
+
+      static int adjoint(int,int,int);
+
       static int bar(int);
 
    private:

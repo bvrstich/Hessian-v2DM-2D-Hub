@@ -16,11 +16,14 @@ CPPSRC	= pr_sdp.cpp\
             Tools.cpp\
             Hamiltonian.cpp\
             TPM.cpp\
+            SPM.cpp\
             SUP.cpp\
             EIG.cpp\
             TPTPM.cpp\
             Hessian.cpp\
             Gradient.cpp\
+            TPSPM.cpp\
+            SPSPM.cpp\
             Newton.cpp
 
 OBJ	= $(CPPSRC:.cpp=.o)
@@ -52,7 +55,7 @@ all:
 	@echo
 	@echo '  +++ Building $(BINNAME)...'
 	@echo	
-	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME)
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQ"
 	@if test $?; then \
 	   echo; echo '*************** FAILED! ***************' ; echo; \
 	 else \

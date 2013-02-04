@@ -50,10 +50,14 @@
 #include "Hamiltonian.h"
 
 #include "TPM.h"
+#include "SPM.h"
 
 #include "TPTPM.h"
 #include "Hessian.h"
 #include "Gradient.h"
+
+#include "TPSPM.h"
+#include "SPSPM.h"
 
 #include "SUP.h"
 #include "EIG.h"

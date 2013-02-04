@@ -108,3 +108,20 @@ int Hamiltonian::bar(int a){
    return xy_a[(-a_xy[a][0] + Tools::gL())%Tools::gL()][(-a_xy[a][1] + Tools::gL())%Tools::gL()];
 
 }
+
+/**
+ * find the sp index which combines with sp-index k to sum up to sp index K.
+ */
+int Hamiltonian::adjoint(int K,int k){
+
+  return xy_a[(a_xy[K][0] - a_xy[k][0] + Tools::gL())%Tools::gL()][(a_xy[K][1] - a_xy[k][1] + Tools::gL())%Tools::gL()];
+}
+
+/**
+ * find the sp index which combines with sp-index e to sum up to sp index formed by (a + k).
+ */
+int Hamiltonian::adjoint(int a,int k,int e){
+
+  return xy_a[(a_xy[a][0] + a_xy[k][0] - a_xy[e][0] + Tools::gL())%Tools::gL()][(a_xy[a][1] + a_xy[k][1] - a_xy[e][1] + Tools::gL())%Tools::gL()];
+
+}

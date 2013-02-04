@@ -12,11 +12,11 @@ using std::ios;
 #include "include.h"
 
 vector< vector<int> > *TPM::t2s;
-
 int ***TPM::s2t;
 
 int **TPM::block_char;
-int ***TPM::char_block;
+
+double **TPM::norm;
 
 /**
  * static function that initializes the static variables
@@ -40,18 +40,12 @@ void TPM::init(){
    block_char = new int * [Tools::gM()];
 
    for(int B = 0;B < Tools::gM();++B)
-      block_char[B] = new int [3];
+      block_char[B] = new int [2];
 
-   char_block = new int ** [2];
+   norm = new double * [Tools::gL2()];
 
-   for(int S = 0;S < 2;++S){
-
-      char_block[S] = new int * [Tools::gL()];
-
-      for(int x = 0;x < Tools::gL();++x)
-         char_block[S][x] = new int [Tools::gL()];
-
-   }
+   for(int a = 0;a < Tools::gL2();++a)
+      norm[a] = new double [Tools::gL2()];
 
    vector<int> v(2);
 
@@ -61,72 +55,72 @@ void TPM::init(){
    int t;
 
    //loop over the K_x K_y blocks
-   for(int K_x = 0;K_x < Tools::gL();++K_x)
-      for(int K_y = 0;K_y < Tools::gL();++K_y){
+   for(int K = 0;K < Tools::gL2();++K){
 
-         t = 0;
+      t = 0;
 
-         //S = 0
-         block_char[block][0] = 0;
-         block_char[block][1] = K_x;
-         block_char[block][2] = K_y;
+      //S = 0
+      block_char[block][0] = 0;
+      block_char[block][1] = K;
 
-         char_block[0][K_x][K_y] = block;
+      for(int a = 0;a < Tools::gL2();++a)
+         for(int b = a;b < Tools::gL2();++b){
 
-         for(int a = 0;a < Tools::gL()*Tools::gL();++a)
-            for(int b = a;b < Tools::gL()*Tools::gL();++b){
+            if( ( (Hamiltonian::ga_xy(a,0) + Hamiltonian::ga_xy(b,0)) % Tools::gL() == Hamiltonian::ga_xy(K,0) ) 
 
-               if( ( (Hamiltonian::ga_xy(a,0) + Hamiltonian::ga_xy(b,0)) % Tools::gL() == K_x ) 
+                  && ( (Hamiltonian::ga_xy(a,1) + Hamiltonian::ga_xy(b,1)) % Tools::gL() == Hamiltonian::ga_xy(K,1) ) ){
 
-                     && ( (Hamiltonian::ga_xy(a,1) + Hamiltonian::ga_xy(b,1)) % Tools::gL() == K_y ) ){
+               v[0] = a;
+               v[1] = b;
 
-                  v[0] = a;
-                  v[1] = b;
+               t2s[block].push_back(v);
 
-                  t2s[block].push_back(v);
+               s2t[block][a][b] = t;
+               s2t[block][b][a] = t;
 
-                  s2t[block][a][b] = t;
-                  s2t[block][b][a] = t;
+               if(a == b)
+                  norm[a][b] = 1.0/(std::sqrt(2.0));
+               else
+                  norm[a][b] = 1.0;
 
-                  ++t;
+               norm[b][a] = norm[a][b];
 
-               }
-
-            }
-
-         t = 0;
-
-         //S = 1
-         block_char[Tools::gL()*Tools::gL() + block][0] = 1;
-         block_char[Tools::gL()*Tools::gL() + block][1] = K_x;
-         block_char[Tools::gL()*Tools::gL() + block][2] = K_y;
-
-         char_block[1][K_x][K_y] = Tools::gL()*Tools::gL() + block;
-
-         for(int a = 0;a < Tools::gL()*Tools::gL();++a)
-            for(int b = a + 1;b < Tools::gL()*Tools::gL();++b){
-
-               if( ( (Hamiltonian::ga_xy(a,0) + Hamiltonian::ga_xy(b,0)) % Tools::gL() == K_x ) 
-
-                     && ( (Hamiltonian::ga_xy(a,1) + Hamiltonian::ga_xy(b,1)) % Tools::gL() == K_y ) ){
-
-                  v[0] = a;
-                  v[1] = b;
-
-                  t2s[Tools::gL()*Tools::gL() + block].push_back(v);
-
-                  s2t[Tools::gL()*Tools::gL() + block][a][b] = t;
-                  s2t[Tools::gL()*Tools::gL() + block][b][a] = t;
-
-                  ++t;
-
-               }
+               ++t;
 
             }
 
-         ++block;
+         }
 
-      }
+      t = 0;
+
+      //S = 1
+      block_char[Tools::gL2() + block][0] = 1;
+      block_char[Tools::gL2() + block][1] = K;
+
+      for(int a = 0;a < Tools::gL2();++a)
+         for(int b = a + 1;b < Tools::gL2();++b){
+
+            if( ( (Hamiltonian::ga_xy(a,0) + Hamiltonian::ga_xy(b,0)) % Tools::gL() == Hamiltonian::ga_xy(K,0) ) 
+
+                  && ( (Hamiltonian::ga_xy(a,1) + Hamiltonian::ga_xy(b,1)) % Tools::gL() == Hamiltonian::ga_xy(K,1) ) ){
+
+               v[0] = a;
+               v[1] = b;
+
+               t2s[Tools::gL2() + block].push_back(v);
+
+               s2t[Tools::gL2() + block][a][b] = t;
+               s2t[Tools::gL2() + block][b][a] = t;
+
+               ++t;
+
+            }
+
+         }
+
+      ++block;
+
+   }
 
 }
 
@@ -152,16 +146,10 @@ void TPM::clear(){
 
    delete [] block_char;
 
-   for(int S = 0;S < 2;++S){
+   for(int a = 0;a < Tools::gL2();++a)
+      delete [] norm[a];
 
-      for(int x = 0;x < Tools::gL();++x)
-         delete [] char_block[S][x];
-
-      delete [] char_block[S];
-
-   }
-
-   delete [] char_block;
+   delete [] norm;
 
 }
 
@@ -194,15 +182,14 @@ TPM::~TPM(){ }
 
 ostream &operator<<(ostream &output,const TPM &tpm_p){
 
-   int S,K_x,K_y;
+   int S,K;
 
    for(int B = 0;B < tpm_p.gnr();++B){
 
       S = tpm_p.block_char[B][0];
-      K_x = tpm_p.block_char[B][1];
-      K_y = tpm_p.block_char[B][2];
+      K = tpm_p.block_char[B][1];
 
-      output << "S =\t" << S << "\tK_x =\t" << K_x << "\tK_y =\t" << K_y <<
+      output << "S =\t" << S << "\tK_x =\t" << Hamiltonian::ga_xy(K,0) << "\tK_y =\t" << Hamiltonian::ga_xy(K,1) <<
 
          "\tdimension =\t" << tpm_p.gdim(B) << "\tdegeneracy =\t" << tpm_p.gdeg(B) << std::endl;
 
@@ -247,7 +234,8 @@ double TPM::operator()(int S,int a,int b,int c,int d) const{
    if( K_y !=  ( Hamiltonian::ga_xy(c,1) + Hamiltonian::ga_xy(d,1) )%Tools::gL() )
       return 0;
 
-   int B = char_block[S][K_x][K_y];
+   int K = Hamiltonian::gxy_a(K_x,K_y);
+   int B = K + S*Tools::gL2();
 
    if(S == 0){
 
@@ -509,5 +497,77 @@ void TPM::convert(const Gradient &grad){
    }
 
    this->symmetrize();
+
+}
+
+/**
+ * The spincoupled Q map
+ * @param option = 1, regular Q map , = -1 inverse Q map
+ * @param tpm_d the TPM of which the Q map is taken and saved in this.
+ */
+void TPM::Q(int option,const TPM &tpm_d){
+
+   double a = 1;
+   double b = 1.0/(Tools::gN()*(Tools::gN() - 1.0));
+   double c = 1.0/(Tools::gN() - 1.0);
+
+   this->Q(option,a,b,c,tpm_d);
+
+}
+
+/**
+ * The spincoupled Q-like map: see primal-dual.pdf for more info (form: Q^S(A,B,C)(TPM) )
+ * @param option = 1, regular Q-like map , = -1 inverse Q-like map
+ * @param A factor in front of the two particle piece of the map
+ * @param B factor in front of the no particle piece of the map
+ * @param C factor in front of the single particle piece of the map
+ * @param tpm_d the TPM of which the Q-like map is taken and saved in this.
+ */
+void TPM::Q(int option,double A,double B,double C,const TPM &tpm_d){
+
+   //for inverse
+   if(option == -1){
+
+      B = (B*A + B*C*Tools::gM() - 2.0*C*C)/( A * (C*(Tools::gM() - 2.0) -  A) * ( A + B*Tools::gM()*(Tools::gM() - 1.0) - 2.0*C*(Tools::gM() - 1.0) ) );
+      C = C/(A*(C*(Tools::gM() - 2.0) - A));
+      A = 1.0/A;
+
+   }
+
+   SPM spm;
+   spm.bar(C,tpm_d);
+
+   //de trace*2 omdat mijn definitie van trace in berekeningen over alle (alpha,beta) loopt
+   double ward = B*tpm_d.trace()*2.0;
+
+   int a,b;
+
+   for(int B = 0;B < gnr();++B){
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         //tp part is only nondiagonal part
+         for(int j = i;j < gdim(B);++j)
+            (*this)(B,i,j) = A * tpm_d(B,i,j);
+
+         (*this)(B,i,i) += ward - spm[a] - spm[b];
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * access to the TPM norms from outside the class
+ */
+double TPM::gnorm(int a,int b){
+
+   return norm[a][b];
 
 }
