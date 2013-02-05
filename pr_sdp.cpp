@@ -1,7 +1,7 @@
 /**
  * @mainpage 
  * This is an implementation of the dual only, potential reduction interior point method
- * for optimizing the second order density matrix using the P, Q, G and T_1 N-representability conditions.
+ * for optimizing the second order density matrix using the P, Q, G and T N-representability conditions.
  * Compiling can be done with the options PQ, PQG, PQGT1, PQGT2 and PQGT (for all conditions active) with logical consequences for the program.
  * @author Brecht Verstichel, Ward Poelmans
  * @date 22-02-2010
@@ -35,8 +35,8 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 3;//dimension of the lattice
-   const int N = 9;//nr of particles
+   const int L = 4;//dimension of the lattice
+   const int N = 16;//nr of particles
 
    Tools::init(L,N);
 
@@ -51,6 +51,7 @@ int main(void) {
 
    Gradient::init();
 
+/*
    Newton newton;
 
    //hamiltoniaan
@@ -125,7 +126,7 @@ int main(void) {
 
    cout << endl;
    cout << "Total nr of Newton steps = " << tot_iter << endl;
-
+*/
    Gradient::clear();
 
    TPTPM::clear();

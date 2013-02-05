@@ -715,7 +715,7 @@ void PPHM::convert(double **array) const {
       }
 
    }//end of S=1/2 block loop
-
+/*
    //set elements with a == b equal to zero
    for(int K = 0;K < L2;++K)
       for(int a = 0;a < L2;++a)
@@ -757,7 +757,7 @@ void PPHM::convert(double **array) const {
          }
 
    }
-
+*/
 }
 
 /**
@@ -886,6 +886,78 @@ void PPHM::convert_st2(double **array) {
 
    }
 
+}
+
+/**
+ * convert a PPHM matrix to a double array for faster access to the number, fast conversion
+ */
+void PPHM::convert_test(double *******array) const {
+
+   int L2 = Tools::gL2();
+   int L4 = L2 * L2;
+   int L6 = L2 * L4;
+   int L8 = L2 * L6;
+
+   int i,j;
+   int c,z;
+
+   int sign_ab,sign_de;
+/*
+   //set elements with a == b and S_ab == 1 to zero
+   for(int K = 0;K < L2;++K)
+      for(int a = 0;a < L2;++a)
+         for(int S_de = 0;S_de < 2;++S_de)
+            for(int d = 0;d < L2;++d)
+               for(int e = 0;e < L2;++e)
+                  array[K][a + a*L2 + d*L4 + e*L6 + L8 + 2*S_de*L8] = 0.0;
+
+   //set elements with d == e and S_de == 1 to zero
+   for(int K = 0;K < L2;++K)
+      for(int d = 0;d < L2;++d)
+         for(int S_ab = 0;S_ab < 2;++S_ab)
+            for(int a = 0;a < L2;++a)
+               for(int b = 0;b < L2;++b)
+                  array[K][a + b*L2 + d*L4 + d*L6 + S_ab*L8 + 2*L8] = 0.0;
+
+   //first S = 1/2
+   for(int K = 0;K < L2;++K){
+
+      for(int S_ab = 0;S_ab < 2;++S_ab){
+
+         sign_ab = 1 - 2*S_ab;
+
+         for(int a = 0;a < L2;++a)
+            for(int b = a + S_ab;b < L2;++b){
+
+               c = Hamiltonian::adjoint(K,a,b);
+               i = s2pph[K][S_ab][a][b][c];
+
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  sign_de = 1 - 2*S_de;
+
+                  for(int d = 0;d < L2;++d)
+                     for(int e = d + S_de;e < L2;++e){
+
+                        z = Hamiltonian::adjoint(K,d,e);
+                        j = s2pph[K][S_de][d][e][z];
+
+                        array[K][a + b*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8] = (*this)(K,i,j);
+                        array[K][b + a*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8] = sign_ab * array[K][a + b*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8];
+                        array[K][a + b*L2 + e*L4 + d*L6 + S_ab*L8 + 2*S_de*L8] = sign_de * array[K][a + b*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8];
+                        array[K][b + a*L2 + e*L4 + d*L6 + S_ab*L8 + 2*S_de*L8] = sign_ab * sign_de * array[K][a + b*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8];
+
+                     }
+
+               }
+
+            }
+
+      }
+
+   }//end of S=1/2 block loop
+
+*/
 }
 
 /* vim: set ts=3 sw=3 expandtab :*/

@@ -50,6 +50,8 @@ class PPHM : public BlockMatrix {
 
       void convert(double **) const;
 
+      void convert_test(double *******) const;
+
       static void convert_st(double **);
 
       static void convert_st2(double **);
