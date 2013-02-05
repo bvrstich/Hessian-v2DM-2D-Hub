@@ -14,6 +14,7 @@ using std::vector;
 class Gradient;
 class PHM;
 class DPM;
+class PPHM;
 class SUP;
 
 /**
@@ -73,6 +74,10 @@ class TPM : public BlockMatrix {
       void T(const DPM &);
 
       void bar(double,const DPM &);
+
+      void T(const PPHM &);
+
+      void bar(double,const PPHM &);
 
       static int gt2s(int,int,int);
 

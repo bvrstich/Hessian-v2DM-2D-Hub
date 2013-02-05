@@ -733,3 +733,138 @@ void TPM::bar(double scale,const DPM &dpm){
    this->symmetrize();
 
 }
+
+
+/**
+ * The spincoupled T2-down map that maps a PPHM on a TPM object.
+ * @param pphm Input PPHM object
+ */
+void TPM::T(const PPHM &pphm){
+
+   //first make the bar tpm
+   TPM tpm;
+   tpm.bar(1.0,pphm);
+
+   //then make the bar phm
+   PHM phm;
+   phm.bar(1.0,pphm);
+
+   //also make the bar spm with the correct scale factor
+   SPM spm;
+   spm.bar(0.5/(Tools::gN() - 1.0),pphm);
+
+   int a,b,c,d;
+   int a_,b_,c_,d_;
+   int sign;
+
+   double norm;
+
+   int S;
+
+   for(int B = 0;B < gnr();++B){//loop over the blocks
+
+      S = block_char[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         //and for access to the hole elements:
+         a_ = Hamiltonian::bar(a);
+         b_ = Hamiltonian::bar(b);
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            c_ = Hamiltonian::bar(c);
+            d_ = Hamiltonian::bar(d);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(a == b)
+                  norm /= std::sqrt(2.0);
+
+               if(c == d)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            //first the tp part
+            (*this)(B,i,j) = tpm(B,i,j);
+
+            //sp part is diagonal for translationaly invariance
+            if(i == j)
+               (*this)(B,i,j) += spm[a_] + spm[b_];
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(B,i,j) -= norm * (2.0 * Z + 1.0) * Tools::g6j(0,0,S,Z) * ( phm(Z,d,a_,b,c_) + sign * phm(Z,d,b_,a,c_) 
+               
+                     + sign * phm(Z,c,a_,b,d_) +  phm(Z,c,b_,a,d_) );
+
+            }
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * The bar function that maps a PPHM object onto a TPM object by tracing away the last pair of incdices of the PPHM
+ * @param pphm Input PPHM object
+ */
+void TPM::bar(double scale,const PPHM &pphm){
+
+   int a,b,c,d;
+   int Z;
+
+   double ward;
+
+   for(int B = 0;B < gnr();++B){//loop over the tp blocks
+
+      Z = block_char[B][0];//spin of the TPM - block
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            (*this)(B,i,j) = 0.0;
+
+            for(int S = 0;S < 2;++S){//loop over three particle spin: 1/2 and 3/2
+
+               ward = (2.0*(S + 0.5) + 1.0)/(2.0*Z + 1.0);
+
+               for(int e = 0;e < Tools::gL()*Tools::gL();++e)
+                  (*this)(B,i,j) += ward * pphm(S,Z,a,b,e,Z,c,d,e);
+
+            }
+
+            (*this)(B,i,j) *= scale;
+
+         }
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}

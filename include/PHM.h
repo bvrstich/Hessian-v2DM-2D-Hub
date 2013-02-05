@@ -51,6 +51,8 @@ class PHM : public BlockMatrix {
 
       void convert(double **) const;
 
+      void bar(double,const PPHM &);
+
       static int gs2ph(int,int,int);
 
       static int gph2s(int,int,int);

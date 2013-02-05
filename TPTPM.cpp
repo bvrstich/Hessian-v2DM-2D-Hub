@@ -456,3 +456,571 @@ void TPTPM::dpt2(double **dparray){
    }
 
 }
+
+/**
+ * construct a TPTPM by double tracing the direct product of two PPHM matrices, already translated to 'array' for for faster access
+ */
+void TPTPM::dpt2_pph(double **ppharray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
+
+   int B,B_;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   int I_i,J_i,K_i,L_i;
+
+   int S,S_;
+
+   for(int i = 0;i < gn();++i){
+
+      B = tpmm2t[i][0];
+
+      S = TPM::gblock_char(B,0);
+
+      I_i = tpmm2t[i][1];
+      J_i = tpmm2t[i][2];
+
+      a = TPM::gt2s(B,I_i,0);
+      b = TPM::gt2s(B,I_i,1);
+      c = TPM::gt2s(B,J_i,0);
+      d = TPM::gt2s(B,J_i,1);
+
+      for(int j = i;j < gn();++j){
+
+         B_ = tpmm2t[j][0];
+
+         S_ = TPM::gblock_char(B_,0);
+
+         K_i = tpmm2t[j][1];
+         L_i = tpmm2t[j][2];
+
+         e = TPM::gt2s(B_,K_i,0);
+         z = TPM::gt2s(B_,K_i,1);
+         t = TPM::gt2s(B_,L_i,0);
+         h = TPM::gt2s(B_,L_i,1);
+
+         double ward = 0.0;
+
+         //first S = 1/2 part
+         for(int k = 0;k < L2;++k){
+
+            int K_pph = Hamiltonian::add(a,b,k);
+
+            ward += ppharray[K_pph][a + b*L2 + e*L4 + z*L6 + S*L8 + 2*S_*L8] * ppharray[K_pph][c + d*L2 + t*L4 + h*L6 + S*L8 + 2*S_*L8]
+
+               + ppharray[K_pph][a + b*L2 + t*L4 + h*L6 + S*L8 + 2*S_*L8] * ppharray[K_pph][c + d*L2 + e*L4 + z*L6 + S*L8 + 2*S_*L8];
+
+         }
+
+         (*this)(i,j) = 2.0 / ( (2*S + 1.0)*(2*S_ + 1.0) ) * ward;
+
+         if(S == 1 && S_ == 1){//only then contribution from S = 3/2 part
+
+            ward = 0.0;
+
+            for(int k = 0;k < L2;++k){
+
+               int K_pph = Hamiltonian::add(a,b,k);
+
+               ward += ppharray[K_pph + L2][a + b*L2 + e*L4 + z*L6] * ppharray[K_pph + L2][c + d*L2 + t*L4 + h*L6]
+
+                  + ppharray[K_pph + L2][a + b*L2 + t*L4 + h*L6] * ppharray[K_pph + L2][c + d*L2 + e*L4 + z*L6];
+
+            }
+
+            (*this)(i,j) += 4.0 / 9.0  * ward;
+
+         }
+
+
+      }
+   }
+
+}
+
+/**
+ * construct a TPTPM by once tracing and once skew-tracing the direct product of two PPHM matrices, already translated to 'array' for for faster access
+ */
+void TPTPM::dptw(double **ppharray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
+
+   int B,B_;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   int a_,b_;
+
+   int I_i,J_i,K_i,L_i;
+
+   int S,S_;
+
+   int sign;
+
+   double ward;
+
+   for(int i = 0;i < gn();++i){
+
+      B = tpmm2t[i][0];
+
+      S = TPM::gblock_char(B,0);
+
+      sign = 1 - 2*S;
+
+      I_i = tpmm2t[i][1];
+      J_i = tpmm2t[i][2];
+
+      a = TPM::gt2s(B,I_i,0);
+      b = TPM::gt2s(B,I_i,1);
+      c = TPM::gt2s(B,J_i,0);
+      d = TPM::gt2s(B,J_i,1);
+
+      a_ = Hamiltonian::bar(a);
+      b_ = Hamiltonian::bar(b);
+
+      for(int j = 0;j < gn();++j){
+
+         B_ = tpmm2t[j][0];
+
+         S_ = TPM::gblock_char(B_,0);
+
+         K_i = tpmm2t[j][1];
+         L_i = tpmm2t[j][2];
+
+         e = TPM::gt2s(B_,K_i,0);
+         z = TPM::gt2s(B_,K_i,1);
+         t = TPM::gt2s(B_,L_i,0);
+         h = TPM::gt2s(B_,L_i,1);
+
+         (*this)(i,j) = 0.0;
+
+         //S'' = 1/2 first
+         for(int J = 0;J < 2;++J){
+
+            ward = 0.0;
+
+            for(int k = 0;k < L2;++k){
+
+               //(da;bc)
+               int K_pph = Hamiltonian::add(k,d,a_);
+
+               ward += ppharray[K_pph][e + z*L2 + k*L4 + d*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + b*L6 + S_*L8 + 2*J*L8]
+
+                  + ppharray[K_pph][e + z*L2 + k*L4 + b*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + d*L6 + S_*L8 + 2*J*L8];
+
+               K_pph = Hamiltonian::add(k,d,b_);
+
+               ward += sign * ( ppharray[K_pph][e + z*L2 + k*L4 + d*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + a*L6 + S_*L8 + 2*J*L8]
+
+                  + ppharray[K_pph][e + z*L2 + k*L4 + a*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + d*L6 + S_*L8 + 2*J*L8] );
+
+               K_pph = Hamiltonian::add(k,c,a_);
+
+               ward += sign * ( ppharray[K_pph][e + z*L2 + k*L4 + c*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + b*L6 + S_*L8 + 2*J*L8]
+
+                  + ppharray[K_pph][e + z*L2 + k*L4 + b*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + c*L6 + S_*L8 + 2*J*L8] );
+
+               K_pph = Hamiltonian::add(k,c,b_);
+
+               ward += ppharray[K_pph][e + z*L2 + k*L4 + c*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + a*L6 + S_*L8 + 2*J*L8]
+
+                  + ppharray[K_pph][e + z*L2 + k*L4 + a*L6 + S_*L8 + 2*J*L8] *  ppharray[K_pph][t + h*L2 + k*L4 + c*L6 + S_*L8 + 2*J*L8];
+
+            }
+
+            (*this)(i,j) += ward * (2*J + 1.0) * Tools::g6j(0,0,S,J);
+
+         }
+
+         (*this)(i,j) *= 2.0 / (2*S_ + 1.0);
+
+         //then S'' = 3/2, only
+         if(S_ == 1){
+
+            ward = 0.0;
+
+            for(int k = 0;k < L2;++k){
+
+               //(da;bc)
+               int K_pph = Hamiltonian::add(k,d,a_);
+
+               ward += ppharray[K_pph + L2][e + z*L2 + k*L4 + d*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + b*L6]
+
+                  + ppharray[K_pph + L2][e + z*L2 + k*L4 + b*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + d*L6];
+
+               K_pph = Hamiltonian::add(k,d,b_);
+
+               ward += sign * ( ppharray[K_pph + L2][e + z*L2 + k*L4 + d*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + a*L6]
+
+                  + ppharray[K_pph + L2][e + z*L2 + k*L4 + a*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + d*L6] );
+
+               K_pph = Hamiltonian::add(k,c,a_);
+
+               ward += sign * ( ppharray[K_pph + L2][e + z*L2 + k*L4 + c*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + b*L6]
+
+                  + ppharray[K_pph + L2][e + z*L2 + k*L4 + b*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + c*L6] );
+
+               K_pph = Hamiltonian::add(k,c,b_);
+
+               ward += ppharray[K_pph + L2][e + z*L2 + k*L4 + c*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + a*L6]
+
+                  + ppharray[K_pph + L2][e + z*L2 + k*L4 + a*L6] *  ppharray[K_pph + L2][t + h*L2 + k*L4 + c*L6];
+
+            }
+
+            (*this)(i,j) +=  4.0 * ward * Tools::g6j(0,0,S,1);
+
+         }
+
+      }
+   }
+
+}
+
+
+/**
+ * construct a TPTPM by twice skew-tracing the direct product of two PPHM matrices, already translated to 'array' for for faster access
+ */
+void TPTPM::dpw2(double **ppharray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
+
+   int B,B_;
+
+   int a,b,c,d;
+   int e,z,t,h;
+
+   int a_,b_;
+   int e_,z_;
+
+   int I_i,J_i,K_i,L_i;
+
+   int S,S_;
+
+   int sign,sign_;
+
+   double ward;
+
+   int K_pph,m;
+
+   for(int i = 0;i < gn();++i){
+
+      B = tpmm2t[i][0];
+
+      S = TPM::gblock_char(B,0);
+
+      sign = 1 - 2*S;
+
+      I_i = tpmm2t[i][1];
+      J_i = tpmm2t[i][2];
+
+      a = TPM::gt2s(B,I_i,0);
+      b = TPM::gt2s(B,I_i,1);
+      c = TPM::gt2s(B,J_i,0);
+      d = TPM::gt2s(B,J_i,1);
+
+      a_ = Hamiltonian::bar(a);
+      b_ = Hamiltonian::bar(b);
+
+      for(int j = i;j < gn();++j){
+
+         B_ = tpmm2t[j][0];
+
+         S_ = TPM::gblock_char(B_,0);
+
+         sign_ = 1 - 2*S_;
+
+         K_i = tpmm2t[j][1];
+         L_i = tpmm2t[j][2];
+
+         e = TPM::gt2s(B_,K_i,0);
+         z = TPM::gt2s(B_,K_i,1);
+         t = TPM::gt2s(B_,L_i,0);
+         h = TPM::gt2s(B_,L_i,1);
+
+         e_ = Hamiltonian::bar(e);
+         z_ = Hamiltonian::bar(z);
+
+         (*this)(i,j) = 0.0;
+
+         //first S'' = 1/2
+         for(int J = 0;J < 2;++J)
+            for(int J_ = 0;J_ < 2;++J_){
+
+               ward = 0.0;
+
+               for(int k = 0;k < L2;++k){
+
+                  K_pph = Hamiltonian::add(k,d,a_);
+
+                  //1) da;bc he;zt
+                  m = Hamiltonian::adjoint(K_pph,h,e_);
+
+                  ward += ppharray[K_pph][k + d*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8];
+
+                  //2) da;bc hz;et
+                  m = Hamiltonian::adjoint(K_pph,h,z_);
+
+                  ward += sign_ * ( ppharray[K_pph][k + d*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //3) da;bc te;zh
+                  m = Hamiltonian::adjoint(K_pph,t,e_);
+
+                  ward += sign_ * (ppharray[K_pph][k + d*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  //4) da;bc tz;eh
+                  m = Hamiltonian::adjoint(K_pph,t,z_);
+
+                  ward += ppharray[K_pph][k + d*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8];
+
+                  K_pph = Hamiltonian::add(k,d,b_);
+
+                  //5) db;ac he;zt
+                  m = Hamiltonian::adjoint(K_pph,h,e_);
+
+                  ward += sign * ( ppharray[K_pph][k + d*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //6) db;ac hz;et
+                  m = Hamiltonian::adjoint(K_pph,h,z_);
+
+                  ward += sign * sign_ * ( ppharray[K_pph][k + d*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //7) db;ac te;zh
+                  m = Hamiltonian::adjoint(K_pph,t,e_);
+
+                  ward += sign * sign_ * ( ppharray[K_pph][k + d*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  //8) db;ac tz;eh
+                  m = Hamiltonian::adjoint(K_pph,t,z_);
+
+                  ward += sign * ( ppharray[K_pph][k + d*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + d*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  K_pph = Hamiltonian::add(k,c,a_);
+
+                  //9) ca;bd he;zt
+                  m = Hamiltonian::adjoint(K_pph,h,e_);
+
+                  ward += sign * ( ppharray[K_pph][k + c*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //10) ca;bd hz;et
+                  m = Hamiltonian::adjoint(K_pph,h,z_);
+
+                  ward += sign * sign_ * ( ppharray[K_pph][k + c*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //11) ca;bd te;zh
+                  m = Hamiltonian::adjoint(K_pph,t,e_);
+
+                  ward += sign * sign_ * ( ppharray[K_pph][k + c*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  //12) ca;bd tz;eh
+                  m = Hamiltonian::adjoint(K_pph,t,z_);
+
+                  ward += sign * ( ppharray[K_pph][k + c*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + b*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  K_pph = Hamiltonian::add(k,c,b_);
+
+                  //13) cb;ad he;zt
+                  m = Hamiltonian::adjoint(K_pph,h,e_);
+
+                  ward += ppharray[K_pph][k + c*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8];
+
+                  //14) cb;ad hz;et
+                  m = Hamiltonian::adjoint(K_pph,h,z_);
+
+                  ward += sign_ * ( ppharray[K_pph][k + c*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + h*L6 + J*L8 + 2*J_*L8] );
+
+                  //15) cb;ad te;zh
+                  m = Hamiltonian::adjoint(K_pph,t,e_);
+
+                  ward += sign_ * ( ppharray[K_pph][k + c*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + z*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] );
+
+                  //16) cb;ad tz;eh
+                  m = Hamiltonian::adjoint(K_pph,t,z_);
+
+                  ward += ppharray[K_pph][k + c*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8]
+
+                     + ppharray[K_pph][k + c*L2 + m*L4 + e*L6 + J*L8 + 2*J_*L8] * ppharray[K_pph][k + a*L2 + m*L4 + t*L6 + J*L8 + 2*J_*L8];
+
+               }//end of loop over k
+               
+               (*this)(i,j) += (2*J + 1.0) * (2*J_ + 1.0) * Tools::g6j(0,0,S,J) * Tools::g6j(0,0,S_,J_) * ward;
+
+            }//end of loops over J,J_
+
+         (*this)(i,j) *= 2.0;
+
+         //S = 3/2
+         ward = 0.0;
+
+         for(int k = 0;k < L2;++k){
+
+            K_pph = Hamiltonian::add(k,d,a_);
+
+            //1) da;bc he;zt
+            m = Hamiltonian::adjoint(K_pph,h,e_);
+
+            ward += ppharray[K_pph + L2][k + d*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + h*L6];
+
+            //2) da;bc hz;et
+            m = Hamiltonian::adjoint(K_pph,h,z_);
+
+            ward += sign_ * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + h*L6] );
+
+            //3) da;bc te;zh
+            m = Hamiltonian::adjoint(K_pph,t,e_);
+
+            ward += sign_ * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + t*L6] );
+
+            //4) da;bc tz;eh
+            m = Hamiltonian::adjoint(K_pph,t,z_);
+
+            ward += ppharray[K_pph + L2][k + d*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + t*L6];
+
+            K_pph = Hamiltonian::add(k,d,b_);
+
+            //5) db;ac he;zt
+            m = Hamiltonian::adjoint(K_pph,h,e_);
+
+            ward += sign * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + h*L6] );
+
+            //6) db;ac hz;et
+            m = Hamiltonian::adjoint(K_pph,h,z_);
+
+            ward += sign * sign_ * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + h*L6] );
+
+            //7) db;ac te;zh
+            m = Hamiltonian::adjoint(K_pph,t,e_);
+
+            ward += sign * sign_ * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + t*L6] );
+
+            //8) db;ac tz;eh
+            m = Hamiltonian::adjoint(K_pph,t,z_);
+
+            ward += sign * ( ppharray[K_pph + L2][k + d*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + d*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + t*L6] );
+
+            K_pph = Hamiltonian::add(k,c,a_);
+
+            //9) ca;bd he;zt
+            m = Hamiltonian::adjoint(K_pph,h,e_);
+
+            ward += sign * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + h*L6] );
+
+            //10) ca;bd hz;et
+            m = Hamiltonian::adjoint(K_pph,h,z_);
+
+            ward += sign * sign_ * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + h*L6] );
+
+            //11) ca;bd te;zh
+            m = Hamiltonian::adjoint(K_pph,t,e_);
+
+            ward += sign * sign_ * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + t*L6] );
+
+            //12) ca;bd tz;eh
+            m = Hamiltonian::adjoint(K_pph,t,z_);
+
+            ward += sign * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + b*L2 + m*L4 + t*L6] );
+
+            K_pph = Hamiltonian::add(k,c,b_);
+
+            //13) cb;ad he;zt
+            m = Hamiltonian::adjoint(K_pph,h,e_);
+
+            ward += ppharray[K_pph + L2][k + c*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + h*L6];
+
+            //14) cb;ad hz;et
+            m = Hamiltonian::adjoint(K_pph,h,z_);
+
+            ward += sign_ * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + h*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + h*L6] );
+
+            //15) cb;ad te;zh
+            m = Hamiltonian::adjoint(K_pph,t,e_);
+
+            ward += sign_ * ( ppharray[K_pph + L2][k + c*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + z*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + z*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + t*L6] );
+
+            //16) cb;ad tz;eh
+            m = Hamiltonian::adjoint(K_pph,t,z_);
+
+            ward += ppharray[K_pph + L2][k + c*L2 + m*L4 + t*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + e*L6]
+
+               + ppharray[K_pph + L2][k + c*L2 + m*L4 + e*L6] * ppharray[K_pph + L2][k + a*L2 + m*L4 + t*L6];
+
+         }//end of loop over k
+
+         (*this)(i,j) += 4.0 * 9.0 * Tools::g6j(0,0,S,1) * Tools::g6j(0,0,S_,1) * ward;
+
+      }
+   }
+
+}

@@ -299,4 +299,75 @@ int PHM::gblock_char(int B,int option){
 
 }
 
+/**
+ * The bar function that maps a PPHM object onto a PHM object by tracing away the first pair of incdices of the PPHM
+ * @param pphm Input PPHM object
+ */
+void PHM::bar(double scale,const PPHM &pphm){
+
+   int a,b,c,d;
+
+   double ward,hard;
+
+   int S;
+
+   for(int B = 0;B < gnr();++B){//loop over the blocks PHM
+
+      S = block_char[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = ph2s[B][i][0];
+         b = ph2s[B][i][1];
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = ph2s[B][j][0];
+            d = ph2s[B][j][1];
+
+            //init
+            (*this)(B,i,j) = 0.0;
+
+            //first the S = 1/2 block of the PPHM matrix
+            for(int S_ab = 0;S_ab < 2;++S_ab)
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  ward = 2.0 * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) ) * Tools::g6j(0,0,S,S_ab) * Tools::g6j(0,0,S,S_de);
+
+                  for(int e = 0;e < Tools::gL() * Tools::gL();++e){
+
+                     hard = ward * pphm(0,S_ab,e,a,b,S_de,e,c,d);
+
+                     //norms
+                     if(e == a)
+                        hard *= std::sqrt(2.0);
+
+                     if(e == c)
+                        hard *= std::sqrt(2.0);
+
+                     (*this)(B,i,j) += hard;
+
+                  }
+
+               }
+
+            //then the S = 3/2 block
+            if(S == 1){
+
+               for(int e = 0;e < Tools::gL() * Tools::gL();++e)
+                  (*this)(B,i,j) += 4.0/3.0 * pphm(1,1,e,a,b,1,e,c,d);
+
+            }
+
+            (*this)(B,i,j) *= scale;
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/

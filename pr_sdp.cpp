@@ -35,8 +35,8 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 4;//dimension of the lattice
-   const int N = 16;//nr of particles
+   const int L = 3;//dimension of the lattice
+   const int N = 9;//nr of particles
 
    Tools::init(L,N);
 
@@ -45,6 +45,7 @@ int main(void) {
    TPM::init();
    PHM::init();
    DPM::init();
+   PPHM::init();
 
    TPTPM::init();
 
@@ -65,7 +66,7 @@ int main(void) {
    int tot_iter = 0;
 
    //outer iteration: scaling of the potential barrier
-   while(t > 1.0e-12){
+   //while(t > 1.0e-12){
 
       cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) << "\t";
 
@@ -75,7 +76,7 @@ int main(void) {
 
       //inner iteration: 
       //Newton's method for finding the minimum of the current potential
-      while(convergence > tolerance){
+      //while(convergence > tolerance){
 
          ++nr_newton_iter;
 
@@ -100,11 +101,11 @@ int main(void) {
 
          convergence = a*a*delta.ddot(delta);
 
-      }
+//      }
 
       cout << nr_newton_iter << endl;
 
-      t /= 1.3;
+      t /= 1.1;
 
       //what is the tolerance for the newton method?
       tolerance = 1.0e-5*t;
@@ -114,7 +115,7 @@ int main(void) {
 
       tot_iter += nr_newton_iter;
 
-   }
+   //}
 
    cout << endl;
 
@@ -129,6 +130,7 @@ int main(void) {
 
    TPTPM::clear();
 
+   PPHM::clear();
    DPM::clear();
    PHM::clear();
    TPM::clear();

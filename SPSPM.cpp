@@ -184,3 +184,63 @@ void SPSPM::dpt4(double scale,double **dparray){
    this->symmetrize();
 
 }
+
+/**
+ * construct a SPSPM by quadruple skew-tracing the direct product of two PPHM's, input the array
+ */
+void SPSPM::dpw4(double scale,double **ppharray){
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
+
+   *this = 0.0;
+
+   //first S = 1/2
+   for(int S_kl = 0;S_kl < 2;++S_kl){
+
+      for(int k = 0;k < L2;++k)
+         for(int l = k + S_kl;l < L2;++l)
+            for(int a = 0;a < L2;++a){
+
+               int K_pph = Hamiltonian::add(k,l,a);
+
+               for(int S_mn = 0;S_mn < 2;++S_mn){
+
+                  for(int m = 0;m < L2;++m)
+                     for(int n = m + S_mn;n < L2;++n){
+
+                        int e = Hamiltonian::adjoint(K_pph,m,n);
+
+                        (*this)(a,e) += 2.0 * scale * ppharray[K_pph][k + l*L2 + m*L4 + n*L6 + S_kl*L8 + 2*S_mn*L8] 
+                        
+                           * ppharray[K_pph][k + l*L2 + m*L4 + n*L6 + S_kl*L8 + 2*S_mn*L8];
+
+                     }
+
+               }
+
+            }
+
+   }
+
+   //then S = 3/2
+   for(int k = 0;k < L2;++k)
+      for(int l = k + 1;l < L2;++l)
+         for(int a = 0;a < L2;++a){
+
+            int K_pph = Hamiltonian::add(k,l,a);
+
+            for(int m = 0;m < L2;++m)
+               for(int n = m + 1;n < L2;++n){
+
+                  int e = Hamiltonian::adjoint(K_pph,m,n);
+
+                  (*this)(a,e) += 4.0 * scale * ppharray[K_pph + L2][k + l*L2 + m*L4 + n*L6] * ppharray[K_pph + L2][k + l*L2 + m*L4 + n*L6];
+
+               }
+
+         }
+
+}
