@@ -13,6 +13,12 @@ using std::ios;
 int **Hamiltonian::xy_a;
 int **Hamiltonian::a_xy;
 
+int *Hamiltonian::bar;
+
+int *Hamiltonian::adjoint2;
+
+int *Hamiltonian::adjoint_sum;
+
 /**
  * function that allocates and constructs the lists.
  */
@@ -44,6 +50,31 @@ void Hamiltonian::init(){
 
       }
 
+   int L2 = Tools::gL2();
+
+   //construct the list which finds the sp index which combines with sp-index k to sum up to sp index K.
+   bar = new int [L2];
+
+   for(int a = 0;a < L2;++a)
+      bar[a] = xy_a[(-a_xy[a][0] + Tools::gL())%Tools::gL()][(-a_xy[a][1] + Tools::gL())%Tools::gL()];
+
+   adjoint2 = new int [L2*L2];
+   
+   for(int K = 0;K < L2;++K)
+      for(int k = 0;k < L2;++k)
+         adjoint2[K + L2*k] = xy_a[(a_xy[K][0] - a_xy[k][0] + Tools::gL())%Tools::gL()][(a_xy[K][1] - a_xy[k][1] + Tools::gL())%Tools::gL()];
+
+   adjoint_sum = new int [L2*L2*L2];
+
+   for(int a = 0;a < L2;++a)
+      for(int k = 0;k < L2;++k)
+         for(int e = 0;e < L2;++e){
+
+            adjoint_sum[a + k*L2 + e*L2*L2] = 
+            
+               xy_a[(a_xy[a][0] + a_xy[k][0] - a_xy[e][0] + Tools::gL())%Tools::gL()][(a_xy[a][1] + a_xy[k][1] - a_xy[e][1] + Tools::gL())%Tools::gL()];
+
+         }
 }
 
 /**
@@ -62,6 +93,10 @@ void Hamiltonian::clear(){
       delete [] a_xy[i];
 
    delete [] a_xy;
+
+   delete [] bar;
+   delete [] adjoint2;
+   delete [] adjoint_sum;
 
 }
 
@@ -103,26 +138,27 @@ int Hamiltonian::gxy_a(int k_x,int k_y){
  * transform the "particle momentum" sp-index to the "hole momentum" sp-index
  * @param a the input sp-index
  */
-int Hamiltonian::bar(int a){
+int Hamiltonian::gbar(int a){
 
-   return xy_a[(-a_xy[a][0] + Tools::gL())%Tools::gL()][(-a_xy[a][1] + Tools::gL())%Tools::gL()];
+   return bar[a];
 
 }
 
 /**
  * find the sp index which combines with sp-index k to sum up to sp index K.
  */
-int Hamiltonian::adjoint(int K,int k){
+int Hamiltonian::gadjoint(int K,int k){
 
-  return xy_a[(a_xy[K][0] - a_xy[k][0] + Tools::gL())%Tools::gL()][(a_xy[K][1] - a_xy[k][1] + Tools::gL())%Tools::gL()];
+  return adjoint2[K + k*Tools::gL2()];
+
 }
 
 /**
  * find the sp index which combines with sp-index e to sum up to sp index formed by (a + k).
  */
-int Hamiltonian::adjoint_sum(int a,int k,int e){
+int Hamiltonian::gadjoint_sum(int a,int k,int e){
 
-  return xy_a[(a_xy[a][0] + a_xy[k][0] - a_xy[e][0] + Tools::gL())%Tools::gL()][(a_xy[a][1] + a_xy[k][1] - a_xy[e][1] + Tools::gL())%Tools::gL()];
+  return adjoint_sum[a + k*Tools::gL2() + e*Tools::gL2()*Tools::gL2()];
 
 }
 

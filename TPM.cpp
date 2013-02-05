@@ -601,8 +601,8 @@ void TPM::G(const PHM &phm){
          a = t2s[B][i][0];
          b = t2s[B][i][1];
 
-         a_ = Hamiltonian::bar(a);
-         b_ = Hamiltonian::bar(b);
+         a_ = Hamiltonian::gbar(a);
+         b_ = Hamiltonian::gbar(b);
 
          //tp part is only nondiagonal part
          for(int j = i;j < gdim(B);++j){
@@ -610,8 +610,8 @@ void TPM::G(const PHM &phm){
             c = t2s[B][j][0];
             d = t2s[B][j][1];
 
-            c_ = Hamiltonian::bar(c);
-            d_ = Hamiltonian::bar(d);
+            c_ = Hamiltonian::gbar(c);
+            d_ = Hamiltonian::gbar(d);
 
             (*this)(B,i,j) = 0.0;
 
@@ -773,16 +773,16 @@ void TPM::T(const PPHM &pphm){
          b = t2s[B][i][1];
 
          //and for access to the hole elements:
-         a_ = Hamiltonian::bar(a);
-         b_ = Hamiltonian::bar(b);
+         a_ = Hamiltonian::gbar(a);
+         b_ = Hamiltonian::gbar(b);
 
          for(int j = i;j < gdim(B);++j){
 
             c = t2s[B][j][0];
             d = t2s[B][j][1];
 
-            c_ = Hamiltonian::bar(c);
-            d_ = Hamiltonian::bar(d);
+            c_ = Hamiltonian::gbar(c);
+            d_ = Hamiltonian::gbar(d);
 
             //determine the norm for the basisset
             norm = 1.0;

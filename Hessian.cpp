@@ -509,8 +509,8 @@ void Hessian::T(const PPHM &T){
       c = TPM::gt2s(B,J_i,0);
       d = TPM::gt2s(B,J_i,1);
 
-      a_ = Hamiltonian::bar(a);
-      b_ = Hamiltonian::bar(b);
+      a_ = Hamiltonian::gbar(a);
+      b_ = Hamiltonian::gbar(b);
 
       for(int j = i;j < TPTPM::gn();++j){
 
@@ -526,8 +526,8 @@ void Hessian::T(const PPHM &T){
          t = TPM::gt2s(B_,L_i,0);
          h = TPM::gt2s(B_,L_i,1);
 
-         e_ = Hamiltonian::bar(e);
-         z_ = Hamiltonian::bar(z);
+         e_ = Hamiltonian::gbar(e);
+         z_ = Hamiltonian::gbar(z);
 
          //first the TPTPM parts
          ward = 2.0 * dpt2(i,j) - 2.0 * ( dptw(i,j) * TPM::gnorm(a,b) * TPM::gnorm(c,d) + dptw(j,i) * TPM::gnorm(e,z) * TPM::gnorm(t,h) );

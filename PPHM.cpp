@@ -420,7 +420,7 @@ void PPHM::T(const TPM &tpm){
          b = pph2s[B][i][2];
 
          //change to tp-notation:
-         c = Hamiltonian::bar(pph2s[B][i][3]);
+         c = Hamiltonian::gbar(pph2s[B][i][3]);
 
          sign_ab = 1 - 2*S_ab;
 
@@ -437,7 +437,7 @@ void PPHM::T(const TPM &tpm){
             e = pph2s[B][j][2];
 
             //change to tp-notation:
-            z = Hamiltonian::bar(pph2s[B][j][3]);
+            z = Hamiltonian::gbar(pph2s[B][j][3]);
 
             sign_de = 1 - 2*S_de;
 
@@ -553,7 +553,7 @@ void PPHM::T(const TPM &tpm){
          b = pph2s[B][i][2];
 
          //change to correct sp-momentum
-         c = Hamiltonian::bar(pph2s[B][i][3]);
+         c = Hamiltonian::gbar(pph2s[B][i][3]);
 
          for(int j = i;j < gdim(B);++j){
 
@@ -561,7 +561,7 @@ void PPHM::T(const TPM &tpm){
             e = pph2s[B][j][2];
 
             //change to correct sp-momentum
-            z = Hamiltonian::bar(pph2s[B][j][3]);
+            z = Hamiltonian::gbar(pph2s[B][j][3]);
 
             //init
             (*this)(B,i,j) = 0.0;

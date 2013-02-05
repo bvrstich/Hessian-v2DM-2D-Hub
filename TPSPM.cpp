@@ -57,7 +57,7 @@ void TPSPM::dpt(double scale,const TPM &Q){
 
       for(int k = 0;k < Tools::gL2();++k){
 
-         int l = Hamiltonian::adjoint(K,k);
+         int l = Hamiltonian::gadjoint(K,k);
 
          if(k == l)
             (*this)(i,k) = 4.0 * scale * Q(S,a,b,k,l) * Q(S,c,d,k,l);
@@ -101,8 +101,8 @@ void TPSPM::dpt(double scale,double **pharray){
       c = TPM::gt2s(B,J,0);
       d = TPM::gt2s(B,J,1);
 
-      c_ = Hamiltonian::bar(c);
-      d_ = Hamiltonian::bar(d);
+      c_ = Hamiltonian::gbar(c);
+      d_ = Hamiltonian::gbar(d);
 
       for(int k = 0;k < Tools::gL2();++k){
 
@@ -342,12 +342,12 @@ void TPSPM::dpw3(double scale,double **ppharray){
       c = TPM::gt2s(B,J_i,0);
       d = TPM::gt2s(B,J_i,1);
 
-      a_ = Hamiltonian::bar(a);
-      b_ = Hamiltonian::bar(b);
+      a_ = Hamiltonian::gbar(a);
+      b_ = Hamiltonian::gbar(b);
 
       for(int e = 0;e < L2;++e){
 
-         int e_ = Hamiltonian::bar(e);
+         int e_ = Hamiltonian::gbar(e);
 
          (*this)(i,e) = 0.0;
 

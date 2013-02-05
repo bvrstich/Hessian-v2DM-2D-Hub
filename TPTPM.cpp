@@ -219,7 +219,7 @@ void TPTPM::dp(double **pharray){
       c = TPM::gt2s(B,J_i,0);
       d = TPM::gt2s(B,J_i,1);
 
-      d_ = Hamiltonian::bar(d); 
+      d_ = Hamiltonian::gbar(d); 
 
       for(int j = i;j < gn();++j){
 
@@ -237,13 +237,13 @@ void TPTPM::dp(double **pharray){
          t = TPM::gt2s(B_,L_i,0);
          h = TPM::gt2s(B_,L_i,1);
 
-         t_ = Hamiltonian::bar(t); 
-         h_ = Hamiltonian::bar(h); 
+         t_ = Hamiltonian::gbar(t); 
+         h_ = Hamiltonian::gbar(h); 
 
          (*this)(i,j) = 0.0;
 
          int P = Hamiltonian::add(a,d_);
-         int P_ = Hamiltonian::bar(P);
+         int P_ = Hamiltonian::gbar(P);
 
          //(a,d,c,b)_(e,h,t,z) and (b,c,d,a)_(z,t,h,e)
          if(P == Hamiltonian::add(e,h_)){
@@ -306,7 +306,7 @@ void TPTPM::dp(double **pharray){
          }
 
          P = Hamiltonian::add(b,d_);
-         P_ = Hamiltonian::bar(P);
+         P_ = Hamiltonian::gbar(P);
 
          //(b,d,c,a)_(e,h,t,z) and (a,c,d,b)_(z,t,h,e)
          if(P == Hamiltonian::add(e,h_)){
@@ -584,8 +584,8 @@ void TPTPM::dptw(double **ppharray){
       c = TPM::gt2s(B,J_i,0);
       d = TPM::gt2s(B,J_i,1);
 
-      a_ = Hamiltonian::bar(a);
-      b_ = Hamiltonian::bar(b);
+      a_ = Hamiltonian::gbar(a);
+      b_ = Hamiltonian::gbar(b);
 
       for(int j = 0;j < gn();++j){
 
@@ -731,8 +731,8 @@ void TPTPM::dpw2(double **ppharray){
       c = TPM::gt2s(B,J_i,0);
       d = TPM::gt2s(B,J_i,1);
 
-      a_ = Hamiltonian::bar(a);
-      b_ = Hamiltonian::bar(b);
+      a_ = Hamiltonian::gbar(a);
+      b_ = Hamiltonian::gbar(b);
 
       for(int j = i;j < gn();++j){
 
@@ -750,8 +750,8 @@ void TPTPM::dpw2(double **ppharray){
          t = TPM::gt2s(B_,L_i,0);
          h = TPM::gt2s(B_,L_i,1);
 
-         e_ = Hamiltonian::bar(e);
-         z_ = Hamiltonian::bar(z);
+         e_ = Hamiltonian::gbar(e);
+         z_ = Hamiltonian::gbar(z);
 
          (*this)(i,j) = 0.0;
 

@@ -221,14 +221,14 @@ void PHM::G(const TPM &tpm){
          a = ph2s[B][i][0];
 
          //transform k_b to tpm sp-momentum:
-         b = Hamiltonian::bar(ph2s[B][i][1]);
+         b = Hamiltonian::gbar(ph2s[B][i][1]);
 
          for(int j = i;j < gdim(B);++j){
 
             c = ph2s[B][j][0];
 
             //transform k_d to tpm sp-momentum:
-            d = Hamiltonian::bar(ph2s[B][j][1]);
+            d = Hamiltonian::gbar(ph2s[B][j][1]);
 
             (*this)(B,i,j) = - Tools::g6j(0,0,0,S) * tpm(0,a,d,c,b) - 3.0 * Tools::g6j(0,0,1,S) * tpm(1,a,d,c,b);
 
@@ -266,7 +266,7 @@ void PHM::convert(double **array) const {
 
       for(int a = 0;a < L2;++a)
          for(int c = 0;c < L2;++c)
-            array[B][a + c*L2] = (*this)(S,a,Hamiltonian::adjoint(K,a),c,Hamiltonian::adjoint(K,c));
+            array[B][a + c*L2] = (*this)(S,a,Hamiltonian::gadjoint(K,a),c,Hamiltonian::gadjoint(K,c));
 
    }
 

@@ -52,7 +52,7 @@ void SPSPM::dpt2(double scale,const TPM &Q){
          //first S = 0
          for(int k = 0;k < Tools::gL2();++k){
 
-            int l = Hamiltonian::adjoint_sum(a,k,e);
+            int l = Hamiltonian::gadjoint_sum(a,k,e);
 
             (*this)(a,e) += (Q(0,a,k,e,l) * Q(0,a,k,e,l) )/ ( TPM::gnorm(a,k) * TPM::gnorm(a,k) * TPM::gnorm(e,l) * TPM::gnorm(e,l) );
 
@@ -63,7 +63,7 @@ void SPSPM::dpt2(double scale,const TPM &Q){
          //then S = 1
          for(int k = 0;k < Tools::gL2();++k){
 
-            int l = Hamiltonian::adjoint_sum(a,k,e);
+            int l = Hamiltonian::gadjoint_sum(a,k,e);
 
             ward += Q(1,a,k,e,l) * Q(1,a,k,e,l);
 
