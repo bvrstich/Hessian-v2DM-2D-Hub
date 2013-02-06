@@ -518,7 +518,7 @@ void TPTPM::dpt2_pph(double **ppharray){
          }
 
          (*this)(i,j) = 2.0 / ( (2*S + 1.0)*(2*S_ + 1.0) ) * ward;
-/*
+
          if(S == 1 && S_ == 1){//only then contribution from S = 3/2 part
 
             ward = 0.0;
@@ -536,90 +536,6 @@ void TPTPM::dpt2_pph(double **ppharray){
             (*this)(i,j) += 4.0 / 9.0  * ward;
 
          }
-*/
-
-      }
-   }
-
-}
-
-void TPTPM::dpt2_pph_test(double *******ppharray){
-
-   int L2 = Tools::gL2();
-   int L4 = L2*L2;
-   int L6 = L4*L2;
-   int L8 = L6*L2;
-
-   int B,B_;
-
-   int a,b,c,d;
-   int e,z,t,h;
-
-   int I_i,J_i,K_i,L_i;
-
-   int S,S_;
-
-   for(int i = 0;i < gn();++i){
-
-      B = tpmm2t[i][0];
-
-      S = TPM::gblock_char(B,0);
-
-      I_i = tpmm2t[i][1];
-      J_i = tpmm2t[i][2];
-
-      a = TPM::gt2s(B,I_i,0);
-      b = TPM::gt2s(B,I_i,1);
-      c = TPM::gt2s(B,J_i,0);
-      d = TPM::gt2s(B,J_i,1);
-
-      for(int j = i;j < gn();++j){
-
-         B_ = tpmm2t[j][0];
-
-         S_ = TPM::gblock_char(B_,0);
-
-         K_i = tpmm2t[j][1];
-         L_i = tpmm2t[j][2];
-
-         e = TPM::gt2s(B_,K_i,0);
-         z = TPM::gt2s(B_,K_i,1);
-         t = TPM::gt2s(B_,L_i,0);
-         h = TPM::gt2s(B_,L_i,1);
-
-         double ward = 0.0;
-
-         //first S = 1/2 part
-         for(int k = 0;k < L2;++k){
-
-            int K_pph = Hamiltonian::add(a,b,k);
-/*
-            ward += ppharray[K_pph][a + b*L2 + e*L4 + z*L6 + S*L8 + 2*S_*L8] * ppharray[K_pph][c + d*L2 + t*L4 + h*L6 + S*L8 + 2*S_*L8]
-
-               + ppharray[K_pph][a + b*L2 + t*L4 + h*L6 + S*L8 + 2*S_*L8] * ppharray[K_pph][c + d*L2 + e*L4 + z*L6 + S*L8 + 2*S_*L8];
-*/
-         }
-
-         (*this)(i,j) = 2.0 / ( (2*S + 1.0)*(2*S_ + 1.0) ) * ward;
-/*
-         if(S == 1 && S_ == 1){//only then contribution from S = 3/2 part
-
-            ward = 0.0;
-
-            for(int k = 0;k < L2;++k){
-
-               int K_pph = Hamiltonian::add(a,b,k);
-
-               ward += ppharray[K_pph + L2][a + b*L2 + e*L4 + z*L6] * ppharray[K_pph + L2][c + d*L2 + t*L4 + h*L6]
-
-                  + ppharray[K_pph + L2][a + b*L2 + t*L4 + h*L6] * ppharray[K_pph + L2][c + d*L2 + e*L4 + z*L6];
-
-            }
-
-            (*this)(i,j) += 4.0 / 9.0  * ward;
-
-         }
-*/
 
       }
    }

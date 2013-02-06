@@ -47,6 +47,8 @@ int main(void) {
    DPM::init();
    PPHM::init();
 
+   PPHM_ns::init();
+
    TPTPM::init();
 
    Gradient::init();
@@ -130,6 +132,8 @@ int main(void) {
    Gradient::clear();
 
    TPTPM::clear();
+
+   PPHM_ns::clear();
 
    PPHM::clear();
    DPM::clear();

@@ -55,6 +55,8 @@
 #include "DPM.h"
 #include "PPHM.h"
 
+#include "PPHM_ns.h"
+
 #include "TPTPM.h"
 #include "Hessian.h"
 #include "Gradient.h"
