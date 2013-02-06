@@ -95,7 +95,7 @@ void SPSPM::dpt2(double scale,double **pharray){
          //first S = 0
          for(int k = 0;k < Tools::gL2();++k){
 
-            int K = Hamiltonian::add(a,k);
+            int K = Hamiltonian::gadd(a,k);
 
             (*this)(a,e) += pharray[K][a + e*L2] * pharray[K][a + e*L2];
 
@@ -106,7 +106,7 @@ void SPSPM::dpt2(double scale,double **pharray){
          //then S = 1
          for(int k = 0;k < Tools::gL2();++k){
 
-            int K = Hamiltonian::add(a,k);
+            int K = Hamiltonian::gadd(a,k);
 
             ward += pharray[K + L2][a + e*L2] * pharray[K + L2][a + e*L2];
 
@@ -144,7 +144,7 @@ void SPSPM::dpt4(double scale,double **dparray){
          for(int l = 0;l < L2;++l)
             for(int k = 0;k < L2;++k){
 
-               int K = Hamiltonian::add(a,l,k);
+               int K = Hamiltonian::gadd(a,l,k);
 
                for(int S_al = 0;S_al < 2;++S_al)
                   for(int S_en = 0;S_en < 2;++S_en)
@@ -167,7 +167,7 @@ void SPSPM::dpt4(double scale,double **dparray){
          for(int l = 0;l < L2;++l)
             for(int k = 0;k < L2;++k){
 
-               int K = Hamiltonian::add(a,l,k);
+               int K = Hamiltonian::gadd(a,l,k);
 
                for(int n = 0;n < L2;++n)
                   ward += dparray[K + L2][a + l*L2 + e*L4 + n*L6] * dparray[K + L2][a + l*L2 + e*L4 + n*L6];
@@ -204,14 +204,14 @@ void SPSPM::dpw4(double scale,double **ppharray){
          for(int l = k + S_kl;l < L2;++l)
             for(int a = 0;a < L2;++a){
 
-               int K_pph = Hamiltonian::add(k,l,a);
+               int K_pph = Hamiltonian::gadd(k,l,a);
 
                for(int S_mn = 0;S_mn < 2;++S_mn){
 
                   for(int m = 0;m < L2;++m)
                      for(int n = m + S_mn;n < L2;++n){
 
-                        int e = Hamiltonian::adjoint(K_pph,m,n);
+                        int e = Hamiltonian::gadjoint(K_pph,m,n);
 
                         (*this)(a,e) += 2.0 * scale * ppharray[K_pph][k + l*L2 + m*L4 + n*L6 + S_kl*L8 + 2*S_mn*L8] 
                         
@@ -230,12 +230,12 @@ void SPSPM::dpw4(double scale,double **ppharray){
       for(int l = k + 1;l < L2;++l)
          for(int a = 0;a < L2;++a){
 
-            int K_pph = Hamiltonian::add(k,l,a);
+            int K_pph = Hamiltonian::gadd(k,l,a);
 
             for(int m = 0;m < L2;++m)
                for(int n = m + 1;n < L2;++n){
 
-                  int e = Hamiltonian::adjoint(K_pph,m,n);
+                  int e = Hamiltonian::gadjoint(K_pph,m,n);
 
                   (*this)(a,e) += 4.0 * scale * ppharray[K_pph + L2][k + l*L2 + m*L4 + n*L6] * ppharray[K_pph + L2][k + l*L2 + m*L4 + n*L6];
 

@@ -48,7 +48,7 @@ CXX	= g++
 # -----------------------------------------------------------------------------
 #   Compiler & Linker flags
 # -----------------------------------------------------------------------------
-CFLAGS	= -I$(INCLUDE) -g -Wall -O3 -flto
+CFLAGS	= -I$(INCLUDE) -g -Wall -flto -O3
 LDFLAGS	= -g -Wall -O3 -flto
 
 

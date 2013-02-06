@@ -648,6 +648,24 @@ int PPHM::gblock_char(int B,int option){
 }
 
 /**
+ * access to the lists from outside of the class
+ */
+int PPHM::gpph2s(int B,int i,int option){
+
+   return pph2s[B][i][option];
+
+}
+
+/**
+ * access to the lists from outside of the class
+ */
+int PPHM::gs2pph(int B,int S_ab,int a,int b,int c){
+
+   return s2pph[B][S_ab][a][b][c];
+
+}
+
+/**
  * convert a PPHM matrix to a double array for faster access to the number, fast conversion
  */
 void PPHM::convert(double **array) const {
@@ -688,7 +706,7 @@ void PPHM::convert(double **array) const {
          for(int a = 0;a < L2;++a)
             for(int b = a + S_ab;b < L2;++b){
 
-               c = Hamiltonian::adjoint(K,a,b);
+               c = Hamiltonian::gadjoint(K,a,b);
                i = s2pph[K][S_ab][a][b][c];
 
                for(int S_de = 0;S_de < 2;++S_de){
@@ -698,7 +716,7 @@ void PPHM::convert(double **array) const {
                   for(int d = 0;d < L2;++d)
                      for(int e = d + S_de;e < L2;++e){
 
-                        z = Hamiltonian::adjoint(K,d,e);
+                        z = Hamiltonian::gadjoint(K,d,e);
                         j = s2pph[K][S_de][d][e][z];
 
                         array[K][a + b*L2 + d*L4 + e*L6 + S_ab*L8 + 2*S_de*L8] = (*this)(K,i,j);
@@ -738,13 +756,13 @@ void PPHM::convert(double **array) const {
       for(int a = 0;a < L2;++a)
          for(int b = a + 1;b < L2;++b){
 
-            c = Hamiltonian::adjoint(K,a,b);
+            c = Hamiltonian::gadjoint(K,a,b);
             i = s2pph[B][0][a][b][c];
 
             for(int d = 0;d < L2;++d)
                for(int e = d + 1;e < L2;++e){
 
-                  z = Hamiltonian::adjoint(K,d,e);
+                  z = Hamiltonian::gadjoint(K,d,e);
                   j = s2pph[B][0][d][e][z];
 
                   array[B][a + b*L2 + d*L4 + e*L6] = (*this)(B,i,j);

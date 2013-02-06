@@ -36,13 +36,13 @@ class Hamiltonian{
 
       static int gadjoint_sum(int,int,int);
 
-      static int adjoint(int,int,int);
+      static int gadjoint(int,int,int);
 
-      static int add(int,int,int);
+      static int gadd(int,int,int);
 
       static int gbar(int);
 
-      static int add(int,int);
+      static int gadd(int,int);
 
    private:
       
@@ -58,6 +58,12 @@ class Hamiltonian{
       static int *adjoint_sum;
 
       static int *bar;
+
+      static int *add2;
+
+      static int *add3;
+
+      static int *adjoint3;
 
 };
 

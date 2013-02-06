@@ -56,6 +56,10 @@ class PPHM : public BlockMatrix {
 
       static int gblock_char(int,int);
 
+      static int gpph2s(int,int,int);
+
+      static int gs2pph(int,int,int,int,int);
+
       static void init();
 
       static void clear();

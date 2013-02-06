@@ -53,6 +53,33 @@ int main(void) {
 
    Gradient::init();
 
+   PPHM pphm;
+   pphm.fill_Random();
+
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
+
+   double **ppharray = new double * [2*L2];
+
+   for(int B = 0;B < L2;++B)//S = 1/2
+      ppharray[B] = new double [4*L8];
+
+   for(int B = L2;B < 2*L2;++B)//S = 3/2
+      ppharray[B] = new double [L8];
+
+   pphm.convert(ppharray);
+
+   TPTPM tpmm;
+   tpmm.dpt2_pph(ppharray);
+
+   //remove the array
+   for(int B = 0;B < 2*L2;++B)
+      delete [] ppharray[B];
+
+   delete [] ppharray;
+
 /*
    Newton newton;
 
