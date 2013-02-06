@@ -61,9 +61,11 @@ class TPM : public BlockMatrix {
 
       double S_2() const;
 
-      double line_search(double,SUP &,const TPM &);
+      void S(int,const TPM &);
 
       void convert(const Gradient &);
+
+      void collaps(int option,const SUP &S);
 
       void Q(int,double,double,double,const TPM &);
 
@@ -78,6 +80,8 @@ class TPM : public BlockMatrix {
       void T(const PPHM &);
 
       void bar(double,const PPHM &);
+
+      void proj_Tr();
 
       static int gt2s(int,int,int);
 
@@ -104,7 +108,11 @@ class TPM : public BlockMatrix {
       //!static list that takes a blockindex B and returns the tp spin S and the tp momenta K_x
       static int **block_char;
 
+      //!list containing the norms arising because of the symmetry between the sp's in the S = 0 block
       static double **norm;
+
+      //!static variables of the inverse overlapmatrix.
+      static double Sa,Sb,Sc;
 
 };
 

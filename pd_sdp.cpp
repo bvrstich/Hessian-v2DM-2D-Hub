@@ -51,7 +51,11 @@ int main(void) {
 
    Gradient::init();
 
+   SUP::init();
+   EIG::init();
+
    Newton newton;
+
    TPM ham;
    ham.hubbard(1.0);
 
