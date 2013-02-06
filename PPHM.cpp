@@ -781,6 +781,117 @@ void PPHM::convert(double **array) const {
 /**
  * convert a PPHM matrix to a double array for faster access to the number, fast conversion
  */
+void PPHM::convert(double *******array0,double *****array1) const {
+
+   int L2 = Tools::gL2();
+
+   int i,j;
+   int c,z;
+
+   int sign_ab,sign_de;
+
+   //set elements with a == b and S_ab == 1 to zero
+   for(int K = 0;K < L2;++K)
+      for(int a = 0;a < L2;++a)
+         for(int S_de = 0;S_de < 2;++S_de)
+            for(int d = 0;d < L2;++d)
+               for(int e = 0;e < L2;++e)
+                  array0[K][1][a][a][S_de][d][e] = 0.0;
+
+   //set elements with d == e and S_de == 1 to zero
+   for(int K = 0;K < L2;++K)
+      for(int d = 0;d < L2;++d)
+         for(int S_ab = 0;S_ab < 2;++S_ab)
+            for(int a = 0;a < L2;++a)
+               for(int b = 0;b < L2;++b)
+                  array0[K][S_ab][a][b][1][d][d] = 0.0;
+
+   //first S = 1/2
+   for(int K = 0;K < L2;++K){
+
+      for(int S_ab = 0;S_ab < 2;++S_ab){
+
+         sign_ab = 1 - 2*S_ab;
+
+         for(int a = 0;a < L2;++a)
+            for(int b = a + S_ab;b < L2;++b){
+
+               c = Hamiltonian::gadjoint(K,a,b);
+               i = s2pph[K][S_ab][a][b][c];
+
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  sign_de = 1 - 2*S_de;
+
+                  for(int d = 0;d < L2;++d)
+                     for(int e = d + S_de;e < L2;++e){
+
+                        z = Hamiltonian::gadjoint(K,d,e);
+                        j = s2pph[K][S_de][d][e][z];
+
+                        array0[K][S_ab][a][b][S_de][d][e] = (*this)(K,i,j);
+                        array0[K][S_ab][b][a][S_de][d][e] = sign_ab * array0[K][S_ab][a][b][S_de][d][e];
+                        array0[K][S_ab][a][b][S_de][e][d] = sign_de * array0[K][S_ab][a][b][S_de][d][e];
+                        array0[K][S_ab][b][a][S_de][e][d] = sign_ab * array0[K][S_ab][a][b][S_de][e][d];
+
+                     }
+
+               }
+
+            }
+
+      }
+
+   }//end of S=1/2 block loop
+
+   //S = 3/2 is easier
+
+   //set elements with a == b equal to zero
+   for(int K = 0;K < L2;++K)
+      for(int a = 0;a < L2;++a)
+         for(int d = 0;d < L2;++d)
+            for(int e = 0;e < L2;++e)
+               array1[K][a][a][d][e] = 0.0;
+
+   //set elements with d == e and S_de == 1 to zero
+   for(int K = 0;K < L2;++K)
+      for(int d = 0;d < L2;++d)
+         for(int a = 0;a < L2;++a)
+            for(int b = 0;b < L2;++b)
+               array1[K][a][b][d][d] = 0.0;
+
+   for(int K = 0;K < L2;++K){
+
+      int B = K + L2;
+
+      for(int a = 0;a < L2;++a)
+         for(int b = a + 1;b < L2;++b){
+
+            c = Hamiltonian::gadjoint(K,a,b);
+            i = s2pph[B][0][a][b][c];
+
+            for(int d = 0;d < L2;++d)
+               for(int e = d + 1;e < L2;++e){
+
+                  z = Hamiltonian::gadjoint(K,d,e);
+                  j = s2pph[B][0][d][e][z];
+
+                  array1[K][a][b][d][e] = (*this)(B,i,j);
+                  array1[K][b][a][d][e] =  -array1[K][a][b][d][e];
+                  array1[K][a][b][e][d] =  -array1[K][a][b][d][e]; 
+                  array1[K][b][a][e][d] =  array1[K][a][b][d][e];
+
+               }
+
+         }
+
+   }
+
+}
+
+/**
+ * convert a PPHM matrix to a double array for faster access to the number, fast conversion
+ */
 void PPHM::convert_st(double **array) {
 
    int L2 = Tools::gL2();

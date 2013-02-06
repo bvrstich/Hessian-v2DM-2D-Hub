@@ -35,8 +35,8 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 4;//dimension of the lattice
-   const int N = 16;//nr of particles
+   const int L = 6;//dimension of the lattice
+   const int N = 36;//nr of particles
 
    Tools::init(L,N);
 
@@ -60,6 +60,181 @@ int main(void) {
    int L4 = L2*L2;
    int L6 = L4*L2;
    int L8 = L6*L2;
+   int L10 = L8*L2;
+
+   double *******ppharray0 = new double ****** [L2];
+
+   for(int K = 0;K < L2;++K){
+
+      ppharray0[K] = new double ***** [2];
+
+      for(int S_ab = 0;S_ab < 2;++S_ab){
+
+         ppharray0[K][S_ab] = new double **** [L2];
+
+         for(int a = 0;a < L2;++a){
+
+            ppharray0[K][S_ab][a] = new double *** [L2];
+
+            for(int b = 0;b < L2;++b){
+
+               ppharray0[K][S_ab][a][b] = new double ** [2];
+
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  ppharray0[K][S_ab][a][b][S_de] = new double * [L2];
+
+               }
+
+            }
+
+         }
+
+      }
+
+   }
+
+   ppharray0[0][0][0][0][0][0] = new double [4*L10];
+
+   for(int K = 1;K < L2;++K)
+      ppharray0[K][0][0][0][0][0] =  ppharray0[K - 1][0][0][0][0][0] + 4*L8;
+
+   for(int K = 0;K < L2;++K)
+      for(int S_ab = 1;S_ab < 2;++S_ab)
+         ppharray0[K][S_ab][0][0][0][0] =  ppharray0[K][S_ab - 1][0][0][0][0] + 2*L8;
+
+   for(int K = 0;K < L2;++K)
+      for(int S_ab = 0;S_ab < 2;++S_ab)
+         for(int a = 1;a < L2;++a)
+            ppharray0[K][S_ab][a][0][0][0] =  ppharray0[K][S_ab][a - 1][0][0][0] + 2*L6;
+
+   for(int K = 0;K < L2;++K)
+      for(int S_ab = 0;S_ab < 2;++S_ab)
+         for(int a = 0;a < L2;++a)
+            for(int b = 1;b < L2;++b)
+               ppharray0[K][S_ab][a][b][0][0] =  ppharray0[K][S_ab][a][b - 1][0][0] + 2*L4;
+
+   for(int K = 0;K < L2;++K)
+      for(int S_ab = 0;S_ab < 2;++S_ab)
+         for(int a = 0;a < L2;++a)
+            for(int b = 0;b < L2;++b)
+               for(int S_de = 1;S_de < 2;++S_de)
+                  ppharray0[K][S_ab][a][b][S_de][0] =  ppharray0[K][S_ab][a][b][S_de - 1][0] + L4;
+
+   for(int K = 0;K < L2;++K)
+      for(int S_ab = 0;S_ab < 2;++S_ab)
+         for(int a = 0;a < L2;++a)
+            for(int b = 0;b < L2;++b)
+               for(int S_de = 0;S_de < 2;++S_de)
+                  for(int d = 1;d < L2;++d)
+                     ppharray0[K][S_ab][a][b][S_de][d] =  ppharray0[K][S_ab][a][b][S_de][d - 1] + L2;
+
+   double *****ppharray1 = new double **** [L2];
+
+   for(int K = 0;K < L2;++K){
+
+      ppharray1[K] = new double *** [L2];
+
+      for(int a = 0;a < L2;++a){
+
+         ppharray1[K][a] = new double ** [L2];
+
+         for(int b = 0;b < L2;++b){
+
+            ppharray1[K][a][b] = new double * [L2];
+
+         }
+
+      }
+
+   }
+
+   ppharray1[0][0][0][0] = new double [L10];
+
+   for(int K = 1;K < L2;++K)
+      ppharray1[K][0][0][0] = ppharray1[K - 1][0][0][0] + L8;
+
+   for(int K = 0;K < L2;++K)
+      for(int a = 1;a < L2;++a)
+         ppharray1[K][a][0][0] = ppharray1[K][a - 1][0][0] + L6;
+
+   for(int K = 0;K < L2;++K)
+      for(int a = 0;a < L2;++a)
+         for(int b = 1;b < L2;++b)
+            ppharray1[K][a][b][0] = ppharray1[K][a][b - 1][0] + L4;
+
+   for(int K = 0;K < L2;++K)
+      for(int a = 0;a < L2;++a)
+         for(int b = 0;b < L2;++b)
+            for(int d = 1;d < L2;++d)
+               ppharray1[K][a][b][d] = ppharray1[K][a][b][d - 1] + L2;
+
+   pphm.convert(ppharray0,ppharray1);
+
+   TPTPM tpmm;
+   tpmm.dpt2_pph(ppharray0,ppharray1);
+
+   delete [] ppharray0[0][0][0][0][0][0];
+
+   for(int K = 0;K < L2;++K){
+
+      for(int S_ab = 0;S_ab < 2;++S_ab){
+
+         for(int a = 0;a < L2;++a){
+
+            for(int b = 0;b < L2;++b){
+
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  delete [] ppharray0[K][S_ab][a][b][S_de];
+
+               }
+
+               delete [] ppharray0[K][S_ab][a][b];
+
+            }
+
+            delete [] ppharray0[K][S_ab][a];
+
+         }
+
+         delete [] ppharray0[K][S_ab];
+
+      }
+
+      delete [] ppharray0[K];
+
+   }
+
+   delete [] ppharray0;
+
+   delete [] ppharray1[0][0][0][0];
+
+   for(int K = 0;K < L2;++K){
+
+      for(int a = 0;a < L2;++a){
+
+         for(int b = 0;b < L2;++b){
+
+            delete [] ppharray1[K][a][b];
+
+         }
+
+         delete [] ppharray1[K][a];
+
+      }
+
+      delete [] ppharray1[K];
+
+   }
+
+   delete [] ppharray1;
+
+/*
+   int L2 = Tools::gL2();
+   int L4 = L2*L2;
+   int L6 = L4*L2;
+   int L8 = L6*L2;
 
    double **ppharray = new double * [2*L2];
 
@@ -79,9 +254,9 @@ int main(void) {
       delete [] ppharray[B];
 
    delete [] ppharray;
-
-/*
-   Newton newton;
+*/
+   /*
+      Newton newton;
 
    //hamiltoniaan
    TPM ham;
@@ -98,52 +273,52 @@ int main(void) {
    //outer iteration: scaling of the potential barrier
    while(t > 1.0e-12){
 
-      cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) << "\t";
+   cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) << "\t";
 
-      int nr_newton_iter = 0;
+   int nr_newton_iter = 0;
 
-      double convergence = 1.0;
+   double convergence = 1.0;
 
-      //inner iteration: 
-      //Newton's method for finding the minimum of the current potential
-      while(convergence > tolerance){
+   //inner iteration: 
+   //Newton's method for finding the minimum of the current potential
+   while(convergence > tolerance){
 
-         ++nr_newton_iter;
+   ++nr_newton_iter;
 
-         SUP P;
+   SUP P;
 
-         P.fill(rdm);
+   P.fill(rdm);
 
-         P.invert();
+   P.invert();
 
-         //fill the Newton object with the correct information, and solve for Delta
-         newton.construct(t,ham,P);
+   //fill the Newton object with the correct information, and solve for Delta
+   newton.construct(t,ham,P);
 
-         //dit wordt de stap:
-         TPM delta;
-         delta.convert(newton.gGradient());
+   //dit wordt de stap:
+   TPM delta;
+   delta.convert(newton.gGradient());
 
-         //line search
-         double a = delta.line_search(t,P,ham);
+   //line search
+   double a = delta.line_search(t,P,ham);
 
-         //rdm += a*delta;
-         rdm.daxpy(a,delta);
+   //rdm += a*delta;
+   rdm.daxpy(a,delta);
 
-         convergence = a*a*delta.ddot(delta);
+   convergence = a*a*delta.ddot(delta);
 
-      }
+   }
 
-      cout << nr_newton_iter << endl;
+   cout << nr_newton_iter << endl;
 
-      t /= 2.0;
+   t /= 2.0;
 
-      //what is the tolerance for the newton method?
-      tolerance = 1.0e-5*t;
+   //what is the tolerance for the newton method?
+   tolerance = 1.0e-5*t;
 
-      if(tolerance < 1.0e-12)
-         tolerance = 1.0e-12;
+   if(tolerance < 1.0e-12)
+   tolerance = 1.0e-12;
 
-      tot_iter += nr_newton_iter;
+   tot_iter += nr_newton_iter;
 
    }
 
@@ -155,8 +330,8 @@ int main(void) {
 
    cout << endl;
    cout << "Total nr of Newton steps = " << tot_iter << endl;
-*/
-   Gradient::clear();
+   */
+      Gradient::clear();
 
    TPTPM::clear();
 

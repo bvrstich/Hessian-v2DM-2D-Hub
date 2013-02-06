@@ -53,6 +53,8 @@ class TPTPM : public Matrix {
 
       void dpt2_pph(double **);
 
+      void dpt2_pph(double *******,double *****);
+
       void dpt2(const PPHM_ns &);
 
       void dptw(double **);
