@@ -36,15 +36,19 @@ class Hamiltonian{
 
       static int gadjoint_sum(int,int,int);
 
-      static int adjoint(int,int,int);
+      static int gadjoint(int,int,int);
 
-      static int add(int,int,int);
+      static int gadd(int,int,int);
 
       static int gbar(int);
 
-      static int add(int,int);
+      static int gadd(int,int);
 
    private:
+
+      static int L2;
+
+      static int L4;
       
       //!static list that translates the two indices of the 2D hubbard model to one sp index.
       static int **xy_a;
@@ -54,6 +58,12 @@ class Hamiltonian{
 
       //!static list relating sums of vector-momenta (x,y) to sp-indices
       static int *adjoint2;
+
+      static int *adjoint3;
+
+      static int *add2;
+
+      static int *add3;
 
       static int *adjoint_sum;
 

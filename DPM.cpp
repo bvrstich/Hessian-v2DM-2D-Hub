@@ -909,7 +909,7 @@ void DPM::convert(double **array) const {
       for(int a = 0;a < L2;++a){
 
          // (1) a == b only when S_ab == 0
-         c = Hamiltonian::adjoint(K,a,a);
+         c = Hamiltonian::gadjoint(K,a,a);
 
          if(c == a){//everything zero!
 
@@ -935,7 +935,7 @@ void DPM::convert(double **array) const {
             for(int d = 0;d < L2;++d){
 
                //(1) d == e only when S_de == 0
-               z = Hamiltonian::adjoint(K,d,d);
+               z = Hamiltonian::gadjoint(K,d,d);
 
                if(z == d){//everything zero
 
@@ -963,7 +963,7 @@ void DPM::convert(double **array) const {
 
                   for(int e = d + 1;e < L2;++e){
 
-                     z = Hamiltonian::adjoint(K,d,e);
+                     z = Hamiltonian::gadjoint(K,d,e);
 
                      if(z < d){//z < d < e
 
@@ -1034,7 +1034,7 @@ void DPM::convert(double **array) const {
 
             for(int b = a + 1;b < L2;++b){
 
-               c = Hamiltonian::adjoint(K,a,b);
+               c = Hamiltonian::gadjoint(K,a,b);
 
                if(c < a){//c < a < b
 
@@ -1047,7 +1047,7 @@ void DPM::convert(double **array) const {
                   for(int d = 0;d < L2;++d){
 
                      //(1) d == e only when S_de == 0
-                     z = Hamiltonian::adjoint(K,d,d);
+                     z = Hamiltonian::gadjoint(K,d,d);
 
                      if(z == d){//everything zero
 
@@ -1081,7 +1081,7 @@ void DPM::convert(double **array) const {
 
                         for(int e = d + 1;e < L2;++e){
 
-                           z = Hamiltonian::adjoint(K,d,e);
+                           z = Hamiltonian::gadjoint(K,d,e);
 
                            if(z < d){//z < d < e
 
@@ -1169,7 +1169,7 @@ void DPM::convert(double **array) const {
                   for(int d = 0;d < L2;++d){
 
                      //(1) d == e only when S_de == 0
-                     z = Hamiltonian::adjoint(K,d,d);
+                     z = Hamiltonian::gadjoint(K,d,d);
 
                      if(z == d){//everything zero
 
@@ -1203,7 +1203,7 @@ void DPM::convert(double **array) const {
 
                         for(int e = d + 1;e < L2;++e){
 
-                           z = Hamiltonian::adjoint(K,d,e);
+                           z = Hamiltonian::gadjoint(K,d,e);
 
                            if(z < d){//z < d < e
 
@@ -1288,7 +1288,7 @@ void DPM::convert(double **array) const {
                   for(int d = 0;d < L2;++d){
 
                      //(1) d == e only when S_de == 0
-                     z = Hamiltonian::adjoint(K,d,d);
+                     z = Hamiltonian::gadjoint(K,d,d);
 
                      if(z == d){//everything zero
 
@@ -1322,7 +1322,7 @@ void DPM::convert(double **array) const {
 
                         for(int e = d + 1;e < L2;++e){
 
-                           z = Hamiltonian::adjoint(K,d,e);
+                           z = Hamiltonian::gadjoint(K,d,e);
 
                            if(z < d){//z < d < e
 
@@ -1410,7 +1410,7 @@ void DPM::convert(double **array) const {
                   for(int d = 0;d < L2;++d){
 
                      //(1) d == e only when S_de == 0
-                     z = Hamiltonian::adjoint(K,d,d);
+                     z = Hamiltonian::gadjoint(K,d,d);
 
                      if(z == d){//everything zero
 
@@ -1444,7 +1444,7 @@ void DPM::convert(double **array) const {
 
                         for(int e = d + 1;e < L2;++e){
 
-                           z = Hamiltonian::adjoint(K,d,e);
+                           z = Hamiltonian::gadjoint(K,d,e);
 
                            if(z < d){//z < d < e
 
@@ -1525,7 +1525,7 @@ void DPM::convert(double **array) const {
                   for(int d = 0;d < L2;++d){
 
                      //(1) d == e only when S_de == 0
-                     z = Hamiltonian::adjoint(K,d,d);
+                     z = Hamiltonian::gadjoint(K,d,d);
 
                      if(z == d){//everything zero
 
@@ -1559,7 +1559,7 @@ void DPM::convert(double **array) const {
 
                         for(int e = d + 1;e < L2;++e){
 
-                           z = Hamiltonian::adjoint(K,d,e);
+                           z = Hamiltonian::gadjoint(K,d,e);
 
                            if(z < d){//z < d < e
 
@@ -1657,7 +1657,7 @@ void DPM::convert(double **array) const {
          // (2) a < b
          for(int b = a + 1;b < L2;++b){
 
-            c = Hamiltonian::adjoint(K,a,b);
+            c = Hamiltonian::gadjoint(K,a,b);
 
             if(c < a){
 
@@ -1671,7 +1671,7 @@ void DPM::convert(double **array) const {
                   //(2) d < e
                   for(int e = d + 1;e < L2;++e){
 
-                     z = Hamiltonian::adjoint(K,d,e);
+                     z = Hamiltonian::gadjoint(K,d,e);
 
                      if(z < d){//z < d < e
 
@@ -1745,7 +1745,7 @@ void DPM::convert(double **array) const {
                   //(2) d < e
                   for(int e = d + 1;e < L2;++e){
 
-                     z = Hamiltonian::adjoint(K,d,e);
+                     z = Hamiltonian::gadjoint(K,d,e);
 
                      if(z < d){//z < d < e
 
@@ -1818,7 +1818,7 @@ void DPM::convert(double **array) const {
                   //(2) d < e
                   for(int e = d + 1;e < L2;++e){
 
-                     z = Hamiltonian::adjoint(K,d,e);
+                     z = Hamiltonian::gadjoint(K,d,e);
 
                      if(z < d){//z < d < e
 

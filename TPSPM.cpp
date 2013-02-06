@@ -111,22 +111,22 @@ void TPSPM::dpt(double scale,double **pharray){
          for(int Z = 0;Z < 2;++Z){
 
             //(a,d,c,b)
-            int P = Hamiltonian::add(a,d_);
+            int P = Hamiltonian::gadd(a,d_);
 
             double ward = pharray[P + Z*L2][a + k*L2] * pharray[P + Z*L2][c + k*L2];
 
             //(b,d,c,a)
-            P = Hamiltonian::add(b,d_);
+            P = Hamiltonian::gadd(b,d_);
 
             ward += sign * pharray[P + Z*L2][b + k*L2] * pharray[P + Z*L2][c + k*L2];
 
             //(a,c,d,b)
-            P = Hamiltonian::add(a,c_);
+            P = Hamiltonian::gadd(a,c_);
 
             ward += sign * pharray[P + Z*L2][a + k*L2] * pharray[P + Z*L2][d + k*L2];
 
             //(b,c,d,a)
-            P = Hamiltonian::add(b,c_);
+            P = Hamiltonian::gadd(b,c_);
 
             ward += pharray[P + Z*L2][b + k*L2] * pharray[P + Z*L2][d + k*L2];
 
@@ -179,7 +179,7 @@ void TPSPM::dpt3(double scale,double **dparray){
          //first S = 1/2
          for(int k = 0;k < L2;++k){//abk and cdk
 
-            int K = Hamiltonian::add(a,b,k);
+            int K = Hamiltonian::gadd(a,b,k);
 
             //first S_ep = 0
             for(int p = 0;p < e;++p)
@@ -209,7 +209,7 @@ void TPSPM::dpt3(double scale,double **dparray){
 
             for(int k = 0;k < L2;++k){//abk and cdk
 
-               int K = Hamiltonian::add(a,b,k);
+               int K = Hamiltonian::gadd(a,b,k);
 
                //only S_ep = 1 term possible
                for(int p = 0;p < e;++p)
@@ -271,7 +271,7 @@ void TPSPM::dptw2(double scale,double **ppharray){
             for(int k = 0;k < L2;++k)
                for(int l = k + S_kl;l < L2;++l){
 
-                  int K_pph = Hamiltonian::add(k,l,e);
+                  int K_pph = Hamiltonian::gadd(k,l,e);
 
                   ward += ppharray[K_pph][a + b*L2 + k*L4 + l*L6 + S*L8 + 2*S_kl*L8] * ppharray[K_pph][c + d*L2 + k*L4 + l*L6 + S*L8 + 2*S_kl*L8];
 
@@ -286,7 +286,7 @@ void TPSPM::dptw2(double scale,double **ppharray){
             for(int k = 0;k < L2;++k)
                for(int l = k + 1;l < L2;++l){
 
-                  int K_pph = Hamiltonian::add(k,l,e);
+                  int K_pph = Hamiltonian::gadd(k,l,e);
 
                   //first S_kl = 0
                   ward += ppharray[K_pph + L2][a + b*L2 + k*L4 + l*L6] * ppharray[K_pph + L2][c + d*L2 + k*L4 + l*L6];
@@ -360,25 +360,25 @@ void TPSPM::dpw3(double scale,double **ppharray){
                for(int m = 0;m < L2;++m)
                   for(int n = m + S_mn;n < L2;++n){
 
-                     K_pph = Hamiltonian::add(m,n,e_);
+                     K_pph = Hamiltonian::gadd(m,n,e_);
 
                      //1)
-                     k = Hamiltonian::adjoint(K_pph,d,a_);
+                     k = Hamiltonian::gadjoint(K_pph,d,a_);
 
                      ward += ppharray[K_pph][m + n*L2 + k*L4 + d*L6 + S_mn*L8 + 2*J*L8] * ppharray[K_pph][m + n*L2 + k*L4 + b*L6 + S_mn*L8 + 2*J*L8];
 
                      //2)
-                     k = Hamiltonian::adjoint(K_pph,d,b_);
+                     k = Hamiltonian::gadjoint(K_pph,d,b_);
 
                      ward += sign * ppharray[K_pph][m + n*L2 + k*L4 + d*L6 + S_mn*L8 + 2*J*L8] * ppharray[K_pph][m + n*L2 + k*L4 + a*L6 + S_mn*L8 + 2*J*L8];
 
                      //3)
-                     k = Hamiltonian::adjoint(K_pph,c,a_);
+                     k = Hamiltonian::gadjoint(K_pph,c,a_);
 
                      ward += sign * ppharray[K_pph][m + n*L2 + k*L4 + c*L6 + S_mn*L8 + 2*J*L8] * ppharray[K_pph][m + n*L2 + k*L4 + b*L6 + S_mn*L8 + 2*J*L8];
 
                      //4)
-                     k = Hamiltonian::adjoint(K_pph,c,b_);
+                     k = Hamiltonian::gadjoint(K_pph,c,b_);
 
                      ward += ppharray[K_pph][m + n*L2 + k*L4 + c*L6 + S_mn*L8 + 2*J*L8] * ppharray[K_pph][m + n*L2 + k*L4 + a*L6 + S_mn*L8 + 2*J*L8];
 
@@ -394,25 +394,25 @@ void TPSPM::dpw3(double scale,double **ppharray){
          for(int m = 0;m < L2;++m)
             for(int n = m + 1;n < L2;++n){
 
-               K_pph = Hamiltonian::add(m,n,e_);
+               K_pph = Hamiltonian::gadd(m,n,e_);
 
                //1)
-               k = Hamiltonian::adjoint(K_pph,d,a_);
+               k = Hamiltonian::gadjoint(K_pph,d,a_);
 
                ward += ppharray[K_pph + L2][m + n*L2 + k*L4 + d*L6] * ppharray[K_pph + L2][m + n*L2 + k*L4 + b*L6];
 
                //2)
-               k = Hamiltonian::adjoint(K_pph,d,b_);
+               k = Hamiltonian::gadjoint(K_pph,d,b_);
 
                ward += sign * ppharray[K_pph + L2][m + n*L2 + k*L4 + d*L6] * ppharray[K_pph + L2][m + n*L2 + k*L4 + a*L6];
 
                //3)
-               k = Hamiltonian::adjoint(K_pph,c,a_);
+               k = Hamiltonian::gadjoint(K_pph,c,a_);
 
                ward += sign * ppharray[K_pph + L2][m + n*L2 + k*L4 + c*L6] * ppharray[K_pph + L2][m + n*L2 + k*L4 + b*L6];
 
                //4)
-               k = Hamiltonian::adjoint(K_pph,c,b_);
+               k = Hamiltonian::gadjoint(K_pph,c,b_);
 
                ward += ppharray[K_pph + L2][m + n*L2 + k*L4 + c*L6] * ppharray[K_pph + L2][m + n*L2 + k*L4 + a*L6];
 
