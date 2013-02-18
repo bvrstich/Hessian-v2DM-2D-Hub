@@ -66,3 +66,6 @@
 #include "EIG.h"
 
 #include "Newton.h"
+
+#include "sDPM.h"
+#include "sPPHM.h"

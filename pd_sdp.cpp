@@ -35,8 +35,8 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 3;//dimension of the lattice
-   const int N = 9;//nr of particles
+   const int L = 4;//dimension of the lattice
+   const int N = 14;//nr of particles
 
    Tools::init(L,N);
 
@@ -54,10 +54,13 @@ int main(void) {
    SUP::init();
    EIG::init();
 
+   sDPM::init();
+   sPPHM::init();
+
    Newton newton;
 
    TPM ham;
-   ham.hubbard(1.0);
+   ham.hubbard(8.0);
 
    SUP Z;
    Z.init_Z();
@@ -208,6 +211,18 @@ int main(void) {
    cout << "E_0 = " << energy << " with accuracy of " << pd_gap << " and a deviation from centrality of " << center_dev << endl;
    cout << endl;
    cout << "Total number of newton steps:\t" << iter << endl;
+
+   PPHM pphm;
+   pphm.T(Z.gI());
+   
+   sPPHM spphm;
+   spphm.trace_x(pphm);
+
+   BlockVector<sPPHM> v(spphm);
+   cout << v;
+
+   sPPHM::clear();
+   sDPM::clear();
 
    Gradient::clear();
 
