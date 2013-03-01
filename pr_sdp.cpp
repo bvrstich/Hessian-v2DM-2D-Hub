@@ -35,8 +35,8 @@ int main(void) {
 
    cout.precision(10);
 
-   const int L = 3;//dimension of the lattice
-   const int N = 9;//nr of particles
+   const int L = 4;//dimension of the lattice
+   const int N = 16;//nr of particles
 
    Tools::init(L,N);
 
